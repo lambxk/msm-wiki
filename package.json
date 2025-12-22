@@ -1,0 +1,26 @@
+{
+  "name": "msm-wiki",
+  "version": "1.0.0",
+  "description": "MSM Project Wiki - Documentation for Mosdns Singbox Mihomo Manager",
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msm9527/msm-wiki.git"
+  },
+  "keywords": ["msm", "mosdns", "singbox", "mihomo", "wiki", "documentation"],
+  "author": "MSM Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/msm9527/msm-wiki/issues"
+  },
+  "homepage": "https://github.com/msm9527/msm-wiki#readme",
+  "devDependencies": {
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.26"
+  }
+}
