@@ -6,13 +6,18 @@ MSM 是单一二进制程序，零外部依赖，安装非常简单。
 
 ### 支持的平台
 
-- ✅ **Linux** (Ubuntu 20.04+ / Debian 11+ / CentOS 8+)
+- ✅ **Linux** (Ubuntu 20.04+ / Debian 11+ / CentOS 8+ / Alpine 3.15+)
 - ✅ **macOS** (10.15+)
 
 ### 支持的架构
 
 - ✅ x86_64 (amd64)
 - ✅ ARM64 (aarch64)
+
+### 支持的 libc
+
+- ✅ **glibc** (标准 Linux 发行版)
+- ✅ **musl** (Alpine Linux)
 
 ### 最低配置
 
@@ -38,11 +43,19 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 ```
 
 脚本会自动：
-- 检测系统架构
-- 下载对应版本
+- 检测系统架构和 libc 类型
+- 下载对应版本（glibc 或 musl）
 - 安装到 `/usr/local/bin/msm`
-- 安装系统服务并设置开机自启
+- 安装系统服务并设置开机自启（systemd）
 - 配置防火墙规则
+- 处理端口冲突
+
+::: tip Alpine Linux 支持
+脚本会自动检测 Alpine Linux 并下载 musl 版本。由于 Alpine 使用 OpenRC 而非 systemd，需要手动启动 MSM：
+```bash
+msm -d  # 后台运行
+```
+:::
 
 ### 方式二：手动安装
 
@@ -50,17 +63,31 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 
 访问 [Releases 页面](https://github.com/msm9527/msm-wiki/releases/latest) 下载对应平台和架构的压缩包。
 
-**Linux amd64**:
+**Linux amd64 (glibc)**:
 ```bash
 wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.1-linux-amd64.tar.gz
 tar -xzf msm-0.7.1-linux-amd64.tar.gz
 sudo mv msm /usr/local/bin/msm
 ```
 
-**Linux arm64**:
+**Linux amd64 (musl - Alpine)**:
+```bash
+wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.1-linux-amd64-musl.tar.gz
+tar -xzf msm-0.7.1-linux-amd64-musl.tar.gz
+sudo mv msm /usr/local/bin/msm
+```
+
+**Linux arm64 (glibc)**:
 ```bash
 wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.1-linux-arm64.tar.gz
 tar -xzf msm-0.7.1-linux-arm64.tar.gz
+sudo mv msm /usr/local/bin/msm
+```
+
+**Linux arm64 (musl - Alpine)**:
+```bash
+wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.1-linux-arm64-musl.tar.gz
+tar -xzf msm-0.7.1-linux-arm64-musl.tar.gz
 sudo mv msm /usr/local/bin/msm
 ```
 

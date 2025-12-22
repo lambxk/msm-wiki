@@ -80,6 +80,26 @@ detect_os() {
     esac
 }
 
+# 检测 libc 类型（glibc 或 musl）
+detect_libc() {
+    # 检查是否是 Alpine Linux（使用 musl）
+    if [ -f /etc/alpine-release ]; then
+        echo "musl"
+        return
+    fi
+
+    # 检查 ldd 版本信息
+    if command -v ldd &> /dev/null; then
+        if ldd --version 2>&1 | grep -qi musl; then
+            echo "musl"
+            return
+        fi
+    fi
+
+    # 默认为 glibc
+    echo "glibc"
+}
+
 # 安装依赖
 install_dependencies() {
     local os=$(uname -s | tr '[:upper:]' '[:lower:]')
@@ -99,6 +119,10 @@ install_dependencies() {
                 centos|rhel|fedora)
                     print_info "安装依赖..."
                     yum install -y curl wget tar gzip > /dev/null 2>&1
+                    ;;
+                alpine)
+                    print_info "安装依赖..."
+                    apk add --no-cache curl wget tar gzip > /dev/null 2>&1
                     ;;
                 *)
                     print_warning "未知的 Linux 发行版，跳过依赖安装"
@@ -129,10 +153,19 @@ download_msm() {
     local version=$1
     local os=$2
     local arch=$3
-    local filename="msm-${version}-${os}-${arch}.tar.gz"
+    local libc=$4
+
+    # 构建文件名
+    local filename
+    if [ "$os" = "linux" ] && [ "$libc" = "musl" ]; then
+        filename="msm-${version}-${os}-${arch}-musl.tar.gz"
+    else
+        filename="msm-${version}-${os}-${arch}.tar.gz"
+    fi
+
     local download_url="https://github.com/${GITHUB_REPO}/releases/download/${version}/${filename}"
 
-    print_info "下载 MSM ${version} (${os}-${arch})..."
+    print_info "下载 MSM ${version} (${os}-${arch}${libc:+-$libc})..."
     print_info "下载地址: $download_url"
 
     # 创建临时目录
@@ -180,8 +213,24 @@ install_msm() {
 install_service() {
     print_info "安装系统服务..."
 
-    # 使用 MSM 内置命令安装服务
-    /usr/local/bin/msm service install
+    # 检测服务管理器
+    if command -v systemctl &> /dev/null; then
+        # 使用 MSM 内置命令安装 systemd 服务
+        /usr/local/bin/msm service install
+        print_success "systemd 服务已安装"
+    elif command -v rc-update &> /dev/null; then
+        # Alpine Linux 使用 OpenRC
+        print_warning "检测到 OpenRC 服务管理器"
+        print_warning "MSM 目前主要支持 systemd，在 Alpine 上请手动管理服务"
+        print_info "可以使用以下命令直接运行 MSM："
+        print_info "  msm -d  # 后台运行"
+        print_info "  msm     # 前台运行"
+        return
+    else
+        print_warning "未检测到 systemd 或 OpenRC，跳过服务安装"
+        print_info "请手动运行 MSM: msm -d"
+        return
+    fi
 
     print_success "系统服务已安装"
 }
@@ -261,6 +310,14 @@ configure_firewall() {
         done
         firewall-cmd --reload > /dev/null 2>&1 || true
         print_success "firewalld 防火墙规则已添加"
+    elif command -v iptables &> /dev/null; then
+        # Alpine Linux 或其他使用 iptables 的系统
+        print_warning "检测到 iptables，请手动配置防火墙规则"
+        print_info "需要开放的端口："
+        print_info "  TCP/UDP: 7777 (Web 管理界面)"
+        print_info "  TCP/UDP: 53, 1053 (DNS 服务)"
+        print_info "  TCP/UDP: 7890, 7891, 7892 (代理服务)"
+        print_info "  TCP/UDP: 6666 (管理端口)"
     else
         print_warning "未检测到防火墙，请手动开放以下端口："
         print_warning "  TCP/UDP: 7777 (Web 管理界面)"
@@ -274,19 +331,27 @@ configure_firewall() {
 start_service() {
     print_info "启动 MSM 服务..."
 
-    systemctl start ${SERVICE_NAME}
+    # 检测服务管理器
+    if command -v systemctl &> /dev/null; then
+        systemctl start ${SERVICE_NAME}
 
-    # 等待服务启动
-    sleep 2
+        # 等待服务启动
+        sleep 2
 
-    # 检查服务状态
-    if systemctl is-active --quiet ${SERVICE_NAME}; then
-        print_success "MSM 服务已启动"
+        # 检查服务状态
+        if systemctl is-active --quiet ${SERVICE_NAME}; then
+            print_success "MSM 服务已启动"
+        else
+            print_error "MSM 服务启动失败"
+            print_info "查看日志: journalctl -u ${SERVICE_NAME} -n 50"
+            print_info "或使用: msm logs"
+            exit 1
+        fi
     else
-        print_error "MSM 服务启动失败"
-        print_info "查看日志: journalctl -u ${SERVICE_NAME} -n 50"
-        print_info "或使用: msm logs"
-        exit 1
+        # 非 systemd 系统（如 Alpine）
+        print_warning "未检测到 systemd，请手动启动 MSM"
+        print_info "后台运行: msm -d"
+        print_info "前台运行: msm"
     fi
 }
 
@@ -344,6 +409,13 @@ main() {
     print_info "操作系统: $os"
     print_info "系统架构: $arch"
 
+    # 检测 libc 类型（仅 Linux）
+    local libc=""
+    if [ "$os" = "linux" ]; then
+        libc=$(detect_libc)
+        print_info "libc 类型: $libc"
+    fi
+
     # 安装依赖
     install_dependencies
 
@@ -352,7 +424,7 @@ main() {
     print_success "最新版本: $version"
 
     # 下载 MSM
-    local temp_dir=$(download_msm $version $os $arch)
+    local temp_dir=$(download_msm $version $os $arch $libc)
 
     # 安装 MSM
     install_msm $temp_dir
