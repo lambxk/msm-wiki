@@ -4,11 +4,11 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "MSM Wiki",
   description: "Mosdns Singbox Mihomo Manager - 统一管理平台文档",
-  base: '/',
+  base: '/msm-wiki/',
   ignoreDeadLinks: true,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo/favicon.svg' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/msm-wiki/logo/favicon.svg' }],
     ['meta', { name: 'theme-color', content: '#2563eb' }],
     ['meta', { name: 'og:type', content: 'website' }],
     ['meta', { name: 'og:locale', content: 'zh_CN' }],
