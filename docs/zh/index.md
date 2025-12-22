@@ -64,8 +64,11 @@ MSM (Mosdns Singbox Mihomo Manager) 是一个统一管理 **MosDNS**、**SingBox
 ### 一键安装（推荐）
 
 ```bash
-# 下载并运行安装脚本
+# 使用 curl 下载并运行安装脚本
 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+
+# 或使用 wget
+wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
 安装完成后访问 `http://your-server-ip:7777`

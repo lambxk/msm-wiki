@@ -102,45 +102,59 @@ detect_libc() {
 
 # 安装依赖
 install_dependencies() {
-    # 检查 wget 是否存在
-    if ! command -v wget &> /dev/null; then
-        print_info "wget 未安装，正在安装..."
-
-        local os=$(uname -s | tr '[:upper:]' '[:lower:]')
-
-        if [ "$os" = "linux" ]; then
-            if [ -f /etc/os-release ]; then
-                . /etc/os-release
-
-                case $ID in
-                    ubuntu|debian)
-                        apt-get install -y wget > /dev/null 2>&1
-                        ;;
-                    centos|rhel|fedora)
-                        yum install -y wget > /dev/null 2>&1
-                        ;;
-                    alpine)
-                        apk add --no-cache wget > /dev/null 2>&1
-                        ;;
-                    *)
-                        print_error "无法自动安装 wget，请手动安装"
-                        exit 1
-                        ;;
-                esac
-            fi
-        elif [ "$os" = "darwin" ]; then
-            print_error "wget 未安装，请使用 brew install wget 安装"
-            exit 1
-        fi
-
-        print_success "wget 安装完成"
+    # 检查 wget 或 curl 是否存在
+    if command -v wget &> /dev/null; then
+        DOWNLOAD_CMD="wget"
+        return
+    elif command -v curl &> /dev/null; then
+        DOWNLOAD_CMD="curl"
+        return
     fi
+
+    # 两者都不存在，需要安装
+    print_info "wget 和 curl 都未安装，正在安装 wget..."
+
+    local os=$(uname -s | tr '[:upper:]' '[:lower:]')
+
+    if [ "$os" = "linux" ]; then
+        if [ -f /etc/os-release ]; then
+            . /etc/os-release
+
+            case $ID in
+                ubuntu|debian)
+                    apt-get install -y wget > /dev/null 2>&1
+                    ;;
+                centos|rhel|fedora)
+                    yum install -y wget > /dev/null 2>&1
+                    ;;
+                alpine)
+                    apk add --no-cache wget > /dev/null 2>&1
+                    ;;
+                *)
+                    print_error "无法自动安装 wget，请手动安装 wget 或 curl"
+                    exit 1
+                    ;;
+            esac
+        fi
+    elif [ "$os" = "darwin" ]; then
+        print_error "wget 和 curl 都未安装，请使用 brew install wget 安装"
+        exit 1
+    fi
+
+    DOWNLOAD_CMD="wget"
+    print_success "wget 安装完成"
 }
 
 # 获取最新版本号
 get_latest_version() {
     print_info "获取最新版本信息..."
-    local version=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+
+    local version
+    if [ "$DOWNLOAD_CMD" = "wget" ]; then
+        version=$(wget -qO- "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    else
+        version=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    fi
 
     if [ -z "$version" ]; then
         print_error "无法获取最新版本信息"
@@ -175,10 +189,18 @@ download_msm() {
     cd $temp_dir
 
     # 下载文件
-    if ! wget -q --show-progress "$download_url" -O "${filename}"; then
-        print_error "下载失败"
-        rm -rf $temp_dir
-        exit 1
+    if [ "$DOWNLOAD_CMD" = "wget" ]; then
+        if ! wget -q --show-progress "$download_url" -O "${filename}"; then
+            print_error "下载失败"
+            rm -rf $temp_dir
+            exit 1
+        fi
+    else
+        if ! curl -fSL "$download_url" -o "${filename}"; then
+            print_error "下载失败"
+            rm -rf $temp_dir
+            exit 1
+        fi
     fi
 
     # 解压文件
