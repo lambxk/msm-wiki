@@ -95,23 +95,12 @@ sudo chmod +x /usr/local/bin/msm
 请将版本号 `0.7.1` 替换为最新版本号。
 :::
 
-### 2. 安装系统服务（可选）
+### 2. 启动 MSM
 
-**使用 systemd（推荐）**:
+**方式一：直接运行**
+
 ```bash
-# 安装系统服务并设置开机自启
-sudo msm service install
-
-# 启动服务
-sudo systemctl start msm
-
-# 查看状态
-sudo systemctl status msm
-```
-
-**直接运行**:
-```bash
-# 前台运行
+# 前台运行（默认端口 7777）
 msm
 
 # 后台运行
@@ -124,60 +113,17 @@ msm -p 8080
 msm -c /opt/msm
 ```
 
-### 3. 配置防火墙
-
-MSM 需要开放以下端口：
-
-**Ubuntu/Debian (UFW)**:
-```bash
-# Web 管理界面
-sudo ufw allow 7777/tcp
-
-# DNS 服务端口
-sudo ufw allow 53/tcp
-sudo ufw allow 53/udp
-sudo ufw allow 1053/tcp
-sudo ufw allow 1053/udp
-
-# 代理服务端口
-sudo ufw allow 7890/tcp
-sudo ufw allow 7891/tcp
-sudo ufw allow 7892/tcp
-
-# 管理端口
-sudo ufw allow 6666/tcp
-```
-
-**CentOS/RHEL (firewalld)**:
-```bash
-# 批量开放端口
-for port in 7777 53 1053 7890 7891 7892 6666; do
-  sudo firewall-cmd --permanent --add-port=${port}/tcp
-  sudo firewall-cmd --permanent --add-port=${port}/udp
-done
-sudo firewall-cmd --reload
-```
-
-::: warning 端口说明
-- **7777**: Web 管理界面
-- **53, 1053**: MosDNS DNS 服务
-- **7890, 7891, 7892**: SingBox/Mihomo 代理服务
-- **6666**: 管理端口
-:::
-
-### 4. 处理端口冲突（如果需要）
-
-如果 53 端口被占用（如 systemd-resolved），需要停止冲突服务：
+**方式二：安装为系统服务（推荐）**
 
 ```bash
-# 停止 systemd-resolved
-sudo systemctl stop systemd-resolved
-sudo systemctl disable systemd-resolved
+# 安装系统服务并设置开机自启
+sudo msm service install
 
-# 更新 DNS 配置
-sudo rm /etc/resolv.conf
-echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
-echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf
+# 启动服务
+sudo systemctl start msm
+
+# 查看状态
+sudo systemctl status msm
 ```
 
 ## 首次使用
@@ -200,21 +146,19 @@ http://your-server-ip:7777
 
 登录后即可开始管理 MosDNS、SingBox 和 Mihomo 服务。
 
-如果需要多用户使用：
-
-1. 进入"用户管理"页面
-2. 点击"创建用户"
-3. 填写用户信息并选择角色
-4. 保存
-
 ## MSM 命令详解
+
+### 默认行为
+
+```bash
+# 不加任何参数时，自动执行 serve 命令启动 HTTP 服务
+msm
+```
 
 ### 基本命令
 
 ```bash
-# 直接启动 HTTP 服务（前台运行）
-msm
-# 或
+# 启动 HTTP 服务（前台运行）
 msm serve
 
 # 指定端口启动
@@ -228,6 +172,9 @@ msm -d
 
 # 查看版本
 msm -v
+
+# 查看帮助
+msm -h
 ```
 
 ### 服务管理命令
@@ -248,12 +195,6 @@ sudo msm restart
 # 查看服务状态
 sudo msm status
 ```
-
-::: tip 服务管理说明
-- `msm service install` 会将 MSM 安装为系统服务（systemd/OpenRC/launchd）
-- 安装后可以使用 `systemctl start/stop/restart msm` 管理服务
-- `msm stop/restart/status` 是 MSM 自带的服务管理命令
-:::
 
 ### 系统管理命令
 
@@ -320,7 +261,7 @@ msm -c /opt/msm
 msm -p 8080
 
 # 组合使用
-msm -c /opt/msm -p 8080
+msm -c /opt/msm -p 8080 -d
 ```
 
 ## 常见问题
@@ -337,32 +278,31 @@ msm -p 8888
 
 1. 检查服务状态：
    ```bash
+   sudo msm status
+   # 或
    sudo systemctl status msm
    ```
 
-2. 检查防火墙：
-   ```bash
-   # Ubuntu/Debian
-   sudo ufw status
-
-   # CentOS/RHEL
-   sudo firewall-cmd --list-all
-   ```
-
-3. 检查端口监听：
+2. 检查端口监听：
    ```bash
    sudo netstat -tlnp | grep 7777
+   # 或
+   sudo ss -tlnp | grep 7777
    ```
-
-4. 检查云服务器安全组：
-   - 如果使用阿里云、腾讯云等，需要在控制台开放 7777 端口
 
 ### 服务无法启动
 
 查看详细日志：
 
 ```bash
+# 使用 MSM 命令
+sudo msm logs
+
+# 使用 systemd
 sudo journalctl -u msm -n 50 --no-pager
+
+# 使用诊断命令
+sudo msm doctor
 ```
 
 ## 下一步

@@ -23,7 +23,6 @@ export default defineConfig({
       { text: '首页', link: '/zh/' },
       { text: '快速开始', link: '/zh/guide/getting-started' },
       { text: '用户指南', link: '/zh/guide/' },
-      { text: 'API 文档', link: '/zh/api/' },
       { text: '部署指南', link: '/zh/deployment/' },
       {
         text: '语言',
@@ -64,18 +63,6 @@ export default defineConfig({
             { text: '配置编辑', link: '/zh/guide/config-editor' },
             { text: '历史记录与回滚', link: '/zh/guide/history' },
             { text: '日志查看', link: '/zh/guide/logs' }
-          ]
-        },
-        {
-          text: 'API 文档',
-          items: [
-            { text: 'API 概览', link: '/zh/api/' },
-            { text: '认证接口', link: '/zh/api/auth' },
-            { text: '用户接口', link: '/zh/api/users' },
-            { text: '服务管理接口', link: '/zh/api/service' },
-            { text: '配置管理接口', link: '/zh/api/config' },
-            { text: '历史记录接口', link: '/zh/api/history' },
-            { text: 'WebSocket 接口', link: '/zh/api/websocket' }
           ]
         },
         {
@@ -134,18 +121,6 @@ export default defineConfig({
             { text: 'Config Editor', link: '/en/guide/config-editor' },
             { text: 'History & Rollback', link: '/en/guide/history' },
             { text: 'Logs', link: '/en/guide/logs' }
-          ]
-        },
-        {
-          text: 'API Reference',
-          items: [
-            { text: 'Overview', link: '/en/api/' },
-            { text: 'Authentication', link: '/en/api/auth' },
-            { text: 'Users', link: '/en/api/users' },
-            { text: 'Service Management', link: '/en/api/service' },
-            { text: 'Config Management', link: '/en/api/config' },
-            { text: 'History', link: '/en/api/history' },
-            { text: 'WebSocket', link: '/en/api/websocket' }
           ]
         },
         {
@@ -255,7 +230,6 @@ export default defineConfig({
           { text: 'Home', link: '/en/' },
           { text: 'Getting Started', link: '/en/guide/getting-started' },
           { text: 'User Guide', link: '/en/guide/' },
-          { text: 'API Reference', link: '/en/api/' },
           { text: 'Deployment', link: '/en/deployment/' }
         ],
         editLink: {
