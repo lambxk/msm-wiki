@@ -102,36 +102,38 @@ detect_libc() {
 
 # 安装依赖
 install_dependencies() {
-    local os=$(uname -s | tr '[:upper:]' '[:lower:]')
+    # 检查 wget 是否存在
+    if ! command -v wget &> /dev/null; then
+        print_info "wget 未安装，正在安装..."
 
-    if [ "$os" = "linux" ]; then
-        if [ -f /etc/os-release ]; then
-            . /etc/os-release
-            print_info "检测到操作系统: $ID"
+        local os=$(uname -s | tr '[:upper:]' '[:lower:]')
 
-            case $ID in
-                ubuntu|debian)
-                    print_info "更新软件包列表..."
-                    apt-get update -qq
-                    print_info "安装依赖..."
-                    apt-get install -y curl wget tar gzip > /dev/null 2>&1
-                    ;;
-                centos|rhel|fedora)
-                    print_info "安装依赖..."
-                    yum install -y curl wget tar gzip > /dev/null 2>&1
-                    ;;
-                alpine)
-                    print_info "安装依赖..."
-                    apk add --no-cache curl wget tar gzip > /dev/null 2>&1
-                    ;;
-                *)
-                    print_warning "未知的 Linux 发行版，跳过依赖安装"
-                    ;;
-            esac
+        if [ "$os" = "linux" ]; then
+            if [ -f /etc/os-release ]; then
+                . /etc/os-release
+
+                case $ID in
+                    ubuntu|debian)
+                        apt-get install -y wget > /dev/null 2>&1
+                        ;;
+                    centos|rhel|fedora)
+                        yum install -y wget > /dev/null 2>&1
+                        ;;
+                    alpine)
+                        apk add --no-cache wget > /dev/null 2>&1
+                        ;;
+                    *)
+                        print_error "无法自动安装 wget，请手动安装"
+                        exit 1
+                        ;;
+                esac
+            fi
+        elif [ "$os" = "darwin" ]; then
+            print_error "wget 未安装，请使用 brew install wget 安装"
+            exit 1
         fi
-    elif [ "$os" = "darwin" ]; then
-        print_info "检测到 macOS 系统"
-        # macOS 通常已经包含所需工具
+
+        print_success "wget 安装完成"
     fi
 }
 
