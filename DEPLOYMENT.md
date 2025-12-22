@@ -10,14 +10,54 @@
 
 ## 部署步骤
 
-### 1. 启用 GitHub Pages
+### 1. 推送代码到 GitHub
 
-1. 进入 GitHub 仓库: https://github.com/msm9527/msm-wiki
-2. 点击 **Settings** (设置)
-3. 在左侧菜单找到 **Pages**
-4. 在 **Source** 下拉菜单中选择 **GitHub Actions**
+::: warning 重要
+必须先推送代码，然后再启用 GitHub Pages！
+:::
 
-### 2. 推送代码到 GitHub
+```bash
+# 确保在 msm-wiki 目录
+cd /Users/doumao/code/github/msm-wiki
+
+# 查看状态
+git status
+
+# 推送到 GitHub
+git push origin main
+```
+
+### 2. 启用 GitHub Pages
+
+推送代码后，按以下步骤启用 GitHub Pages：
+
+#### 步骤 1: 进入仓库设置
+
+1. 访问仓库: https://github.com/msm9527/msm-wiki
+2. 点击顶部的 **Settings** (设置) 标签
+
+#### 步骤 2: 找到 Pages 设置
+
+1. 在左侧菜单中向下滚动
+2. 找到并点击 **Pages** 选项
+
+#### 步骤 3: 配置 Source
+
+1. 在 **Build and deployment** 部分
+2. 找到 **Source** 下拉菜单
+3. 选择 **GitHub Actions**
+
+::: tip 提示
+如果看不到 GitHub Actions 选项，请确保：
+- 仓库是公开的（Public）
+- 或者你有 GitHub Pro/Team/Enterprise 账号
+:::
+
+#### 步骤 4: 保存配置
+
+配置会自动保存，无需点击保存按钮。
+
+### 3. 触发首次部署
 
 ```bash
 # 确保在 msm-wiki 目录
