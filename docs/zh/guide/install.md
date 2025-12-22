@@ -1,6 +1,6 @@
-# 一键安装部署
+# 安装部署
 
-MSM 提供了一键安装脚本，可以快速在 Linux 服务器上部署 MSM。
+MSM 是单一二进制程序，零外部依赖，安装非常简单。
 
 ## 系统要求
 
@@ -28,107 +28,51 @@ MSM 提供了一键安装脚本，可以快速在 Linux 服务器上部署 MSM�
 
 ## 快速安装
 
-### 方式一：使用一键脚本（推荐）
+### 方式一：一键脚本（推荐）
 
 ```bash
 # 下载并运行安装脚本
 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
-或者分步执行：
-
-```bash
-# 1. 下载脚本
-wget https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh
-
-# 2. 添加执行权限
-chmod +x install.sh
-
-# 3. 运行安装
-sudo ./install.sh
-```
+脚本会自动：
+- 检测系统架构
+- 下载对应版本
+- 安装到 `/usr/local/bin/msm`
+- 安装系统服务并设置开机自启
+- 配置防火墙规则
 
 ### 方式二：手动安装
 
-如果你想更多控制安装过程，可以手动安装：
-
-#### 1. 下载最新版本
+#### 1. 下载二进制文件
 
 访问 [Releases 页面](https://github.com/msm9527/msm-wiki/releases/latest) 下载对应架构的二进制文件。
 
 ```bash
-# 示例：下载 amd64 版本
+# 下载 amd64 版本
 wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-linux-amd64
 
 # 添加执行权限
 chmod +x msm-linux-amd64
 
-# 重命名
-mv msm-linux-amd64 msm
+# 移动到系统路径
+sudo mv msm-linux-amd64 /usr/local/bin/msm
 ```
 
-#### 2. 创建安装目录
+#### 2. 安装系统服务
 
 ```bash
-sudo mkdir -p /opt/msm/data
-sudo mkdir -p /opt/msm/logs
-sudo mv msm /opt/msm/
-```
-
-#### 3. 创建 systemd 服务
-
-```bash
-sudo nano /etc/systemd/system/msm.service
-```
-
-添加以下内容：
-
-```ini
-[Unit]
-Description=MSM - Mosdns Singbox Mihomo Manager
-Documentation=https://msm9527.github.io/msm-wiki/
-After=network.target
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/opt/msm
-ExecStart=/opt/msm/msm
-Restart=on-failure
-RestartSec=5s
-
-# 安全配置
-NoNewPrivileges=true
-PrivateTmp=true
-ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/opt/msm/data /opt/msm/logs
-
-# 日志配置
-StandardOutput=append:/opt/msm/logs/msm.log
-StandardError=append:/opt/msm/logs/msm-error.log
-
-[Install]
-WantedBy=multi-user.target
-```
-
-#### 4. 启动服务
-
-```bash
-# 重载 systemd 配置
-sudo systemctl daemon-reload
+# 安装系统服务并设置开机自启
+sudo msm service install
 
 # 启动服务
 sudo systemctl start msm
-
-# 设置开机自启
-sudo systemctl enable msm
 
 # 查看状态
 sudo systemctl status msm
 ```
 
-#### 5. 配置防火墙
+#### 3. 配置防火墙
 
 **Ubuntu/Debian (UFW)**:
 ```bash
@@ -141,7 +85,106 @@ sudo firewall-cmd --permanent --add-port=7777/tcp
 sudo firewall-cmd --reload
 ```
 
-## 安装后配置
+## MSM 命令详解
+
+### 基本命令
+
+```bash
+# 直接启动（前台运行）
+msm
+
+# 指定端口启动
+msm -p 8080
+
+# 指定配置目录
+msm -c /opt/msm
+
+# 后台运行
+msm -d
+
+# 查看版本
+msm -v
+```
+
+### 服务管理
+
+```bash
+# 安装系统服务（开机自启）
+sudo msm service install
+
+# 卸载系统服务
+sudo msm service uninstall
+
+# 启动服务
+sudo systemctl start msm
+# 或
+sudo msm restart
+
+# 停止服务
+sudo systemctl stop msm
+# 或
+sudo msm stop
+
+# 查看状态
+sudo systemctl status msm
+# 或
+sudo msm status
+
+# 重启服务
+sudo systemctl restart msm
+# 或
+sudo msm restart
+```
+
+### 日志查看
+
+```bash
+# 查看实时日志
+sudo msm logs
+
+# 使用 systemd 查看日志
+sudo journalctl -u msm -f
+
+# 查看最近 50 条日志
+sudo journalctl -u msm -n 50
+```
+
+### 其他命令
+
+```bash
+# 初始化配置目录
+msm init
+
+# 重置管理员密码
+sudo msm reset-password
+
+# 系统诊断
+sudo msm doctor
+```
+
+## 配置说明
+
+### 默认配置
+
+- **配置目录**: `/root/.msm`
+- **HTTP 端口**: `7777`
+- **数据目录**: `/root/.msm/data`
+- **日志目录**: `/root/.msm/logs`
+
+### 自定义配置
+
+```bash
+# 使用自定义配置目录
+msm -c /opt/msm
+
+# 使用自定义端口
+msm -p 8080
+
+# 组合使用
+msm -c /opt/msm -p 8080
+```
+
+## 首次使用
 
 ### 1. 访问 Web 界面
 
@@ -151,13 +194,15 @@ sudo firewall-cmd --reload
 http://your-server-ip:7777
 ```
 
-### 2. 首次使用
+### 2. 创建管理员账号
 
-::: tip 创建管理员账号
+::: tip 首次访问
 首次访问时，系统会引导你创建管理员账号。请设置强密码并妥善保管。
 :::
 
-### 3. 创建新用户（可选）
+### 3. 开始使用
+
+登录后即可开始管理 MosDNS、SingBox 和 Mihomo 服务。
 
 如果需要多用户使用：
 

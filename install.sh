@@ -140,59 +140,26 @@ download_msm() {
 install_msm() {
     local temp_dir=$1
 
-    print_info "安装 MSM 到 ${INSTALL_DIR}..."
+    print_info "安装 MSM..."
 
-    # 创建安装目录
-    mkdir -p ${INSTALL_DIR}
-    mkdir -p ${INSTALL_DIR}/data
-    mkdir -p ${INSTALL_DIR}/logs
-
-    # 复制文件
-    cp ${temp_dir}/msm ${INSTALL_DIR}/
+    # 复制文件到系统路径
+    cp ${temp_dir}/msm /usr/local/bin/msm
+    chmod +x /usr/local/bin/msm
 
     # 清理临时文件
     rm -rf $temp_dir
 
-    print_success "MSM 安装完成"
+    print_success "MSM 二进制文件已安装到 /usr/local/bin/msm"
 }
 
-# 创建 systemd 服务
-create_systemd_service() {
-    print_info "创建 systemd 服务..."
+# 安装系统服务
+install_service() {
+    print_info "安装系统服务..."
 
-    cat > /etc/systemd/system/${SERVICE_NAME}.service << EOF
-[Unit]
-Description=MSM - Mosdns Singbox Mihomo Manager
-Documentation=https://msm9527.github.io/msm-wiki/
-After=network.target
+    # 使用 MSM 内置命令安装服务
+    /usr/local/bin/msm service install
 
-[Service]
-Type=simple
-User=root
-WorkingDirectory=${INSTALL_DIR}
-ExecStart=${INSTALL_DIR}/msm
-Restart=on-failure
-RestartSec=5s
-
-# 安全配置
-NoNewPrivileges=true
-PrivateTmp=true
-ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=${INSTALL_DIR}/data ${INSTALL_DIR}/logs
-
-# 日志配置
-StandardOutput=append:${INSTALL_DIR}/logs/msm.log
-StandardError=append:${INSTALL_DIR}/logs/msm-error.log
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-    # 重载 systemd
-    systemctl daemon-reload
-
-    print_success "systemd 服务已创建"
+    print_success "系统服务已安装"
 }
 
 # 配置防火墙
@@ -218,7 +185,6 @@ configure_firewall() {
 start_service() {
     print_info "启动 MSM 服务..."
 
-    systemctl enable ${SERVICE_NAME}
     systemctl start ${SERVICE_NAME}
 
     # 等待服务启动
@@ -230,6 +196,7 @@ start_service() {
     else
         print_error "MSM 服务启动失败"
         print_info "查看日志: journalctl -u ${SERVICE_NAME} -n 50"
+        print_info "或使用: msm logs"
         exit 1
     fi
 }
@@ -250,14 +217,21 @@ show_info() {
     echo "  2. 请设置强密码并妥善保管"
     echo ""
     echo "常用命令:"
-    echo "  启动服务: systemctl start ${SERVICE_NAME}"
-    echo "  停止服务: systemctl stop ${SERVICE_NAME}"
-    echo "  重启服务: systemctl restart ${SERVICE_NAME}"
-    echo "  查看状态: systemctl status ${SERVICE_NAME}"
-    echo "  查看日志: journalctl -u ${SERVICE_NAME} -f"
+    echo "  查看状态: msm status"
+    echo "  查看日志: msm logs"
+    echo "  停止服务: msm stop"
+    echo "  重启服务: msm restart"
+    echo "  重置密码: msm reset-password"
+    echo "  系统诊断: msm doctor"
     echo ""
-    echo "数据目录: ${INSTALL_DIR}/data"
-    echo "日志目录: ${INSTALL_DIR}/logs"
+    echo "或使用 systemd:"
+    echo "  systemctl status msm"
+    echo "  systemctl stop msm"
+    echo "  systemctl restart msm"
+    echo "  journalctl -u msm -f"
+    echo ""
+    echo "安装位置: /usr/local/bin/msm"
+    echo "配置目录: /root/.msm"
     echo ""
     echo "文档地址: https://msm9527.github.io/msm-wiki/zh/"
     echo "=========================================="
@@ -292,8 +266,8 @@ main() {
     # 安装 MSM
     install_msm $temp_dir
 
-    # 创建 systemd 服务
-    create_systemd_service
+    # 安装系统服务
+    install_service
 
     # 配置防火墙
     configure_firewall
