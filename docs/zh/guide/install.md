@@ -219,8 +219,10 @@ echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf
 ### 基本命令
 
 ```bash
-# 直接启动（前台运行）
+# 直接启动 HTTP 服务（前台运行）
 msm
+# 或
+msm serve
 
 # 指定端口启动
 msm -p 8080
@@ -235,7 +237,7 @@ msm -d
 msm -v
 ```
 
-### 服务管理
+### 服务管理命令
 
 ```bash
 # 安装系统服务（开机自启）
@@ -244,41 +246,23 @@ sudo msm service install
 # 卸载系统服务
 sudo msm service uninstall
 
-# 启动服务
-sudo systemctl start msm
-# 或
-sudo msm restart
-
-# 停止服务
-sudo systemctl stop msm
-# 或
+# 停止 MSM 服务
 sudo msm stop
 
-# 查看状态
-sudo systemctl status msm
-# 或
-sudo msm status
-
-# 重启服务
-sudo systemctl restart msm
-# 或
+# 重启 MSM 服务
 sudo msm restart
+
+# 查看服务状态
+sudo msm status
 ```
 
-### 日志查看
+::: tip 服务管理说明
+- `msm service install` 会将 MSM 安装为系统服务（systemd/OpenRC/launchd）
+- 安装后可以使用 `systemctl start/stop/restart msm` 管理服务
+- `msm stop/restart/status` 是 MSM 自带的服务管理命令
+:::
 
-```bash
-# 查看实时日志
-sudo msm logs
-
-# 使用 systemd 查看日志
-sudo journalctl -u msm -f
-
-# 查看最近 50 条日志
-sudo journalctl -u msm -n 50
-```
-
-### 其他命令
+### 系统管理命令
 
 ```bash
 # 初始化配置目录
@@ -289,6 +273,39 @@ sudo msm reset-password
 
 # 系统诊断
 sudo msm doctor
+
+# 查看服务日志
+sudo msm logs
+```
+
+### 使用 systemd 管理（推荐）
+
+安装系统服务后，推荐使用 systemd 命令管理：
+
+```bash
+# 启动服务
+sudo systemctl start msm
+
+# 停止服务
+sudo systemctl stop msm
+
+# 重启服务
+sudo systemctl restart msm
+
+# 查看状态
+sudo systemctl status msm
+
+# 查看日志
+sudo journalctl -u msm -f
+
+# 查看最近 50 条日志
+sudo journalctl -u msm -n 50
+
+# 禁用开机自启
+sudo systemctl disable msm
+
+# 启用开机自启
+sudo systemctl enable msm
 ```
 
 ## 配置说明
