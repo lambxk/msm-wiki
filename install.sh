@@ -218,16 +218,16 @@ download_msm() {
 
 # 安装 MSM
 install_msm() {
-    local temp_dir=$1
+    local temp_dir="$1"
 
     print_info "安装 MSM..."
 
     # 复制文件到系统路径
-    cp ${temp_dir}/msm /usr/local/bin/msm
+    cp "${temp_dir}/msm" /usr/local/bin/msm
     chmod +x /usr/local/bin/msm
 
     # 清理临时文件
-    rm -rf $temp_dir
+    rm -rf "${temp_dir}"
 
     print_success "MSM 二进制文件已安装到 /usr/local/bin/msm"
 }
