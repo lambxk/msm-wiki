@@ -66,6 +66,30 @@ export default defineConfig({
           ]
         },
         {
+          text: 'API 文档',
+          items: [
+            { text: 'API 概览', link: '/zh/api/' },
+            { text: '认证与会话', link: '/zh/api/auth' },
+            { text: '初始化与安装', link: '/zh/api/setup' },
+            { text: '服务管理', link: '/zh/api/services' },
+            { text: '配置管理', link: '/zh/api/config' },
+            { text: '历史记录', link: '/zh/api/history' },
+            { text: '日志管理', link: '/zh/api/logs' },
+            { text: '系统监控', link: '/zh/api/monitor' },
+            { text: '用户管理', link: '/zh/api/users' },
+            { text: '个人资料', link: '/zh/api/profile' },
+            { text: '系统设置', link: '/zh/api/settings' },
+            { text: '系统诊断', link: '/zh/api/system' },
+            { text: '更新管理', link: '/zh/api/update' },
+            { text: '网络信息', link: '/zh/api/network' },
+            { text: '审计记录', link: '/zh/api/audit' },
+            { text: 'MosDNS 管理', link: '/zh/api/mosdns' },
+            { text: 'Sing-box 管理', link: '/zh/api/singbox' },
+            { text: 'Mihomo 管理', link: '/zh/api/mihomo' },
+            { text: '事件流（SSE）', link: '/zh/api/events' }
+          ]
+        },
+        {
           text: '部署指南',
           items: [
             { text: '单机部署', link: '/zh/deployment/standalone' },
