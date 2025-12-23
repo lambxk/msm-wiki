@@ -40,9 +40,7 @@ export default defineConfig({
           items: [
             { text: '什么是 MSM', link: '/zh/introduction/what-is-msm' },
             { text: '核心特性', link: '/zh/introduction/features' },
-            { text: '架构设计', link: '/zh/introduction/architecture' },
-            { text: '透明代理架构', link: '/zh/introduction/transparent-proxy' },
-            { text: '技术栈', link: '/zh/introduction/tech-stack' }
+            { text: '透明代理架构', link: '/zh/introduction/transparent-proxy' }
           ]
         },
         {
@@ -92,20 +90,8 @@ export default defineConfig({
           text: '部署指南',
           items: [
             { text: '单机部署', link: '/zh/deployment/standalone' },
-            { text: 'Docker 部署', link: '/zh/deployment/docker' },
-            { text: 'Systemd 配置', link: '/zh/deployment/systemd' },
             { text: 'Nginx 配置', link: '/zh/deployment/nginx' },
             { text: 'HTTPS 配置', link: '/zh/deployment/https' }
-          ]
-        },
-        {
-          text: '开发指南',
-          items: [
-            { text: '开发环境搭建', link: '/zh/development/setup' },
-            { text: '项目结构', link: '/zh/development/structure' },
-            { text: '前端开发', link: '/zh/development/frontend' },
-            { text: '后端开发', link: '/zh/development/backend' },
-            { text: '贡献指南', link: '/zh/development/contributing' }
           ]
         },
         {
@@ -121,9 +107,7 @@ export default defineConfig({
           text: 'Introduction',
           items: [
             { text: 'What is MSM', link: '/en/introduction/what-is-msm' },
-            { text: 'Features', link: '/en/introduction/features' },
-            { text: 'Architecture', link: '/en/introduction/architecture' },
-            { text: 'Tech Stack', link: '/en/introduction/tech-stack' }
+            { text: 'Features', link: '/en/introduction/features' }
           ]
         },
         {
@@ -150,20 +134,8 @@ export default defineConfig({
           text: 'Deployment',
           items: [
             { text: 'Standalone', link: '/en/deployment/standalone' },
-            { text: 'Docker', link: '/en/deployment/docker' },
-            { text: 'Systemd', link: '/en/deployment/systemd' },
             { text: 'Nginx', link: '/en/deployment/nginx' },
             { text: 'HTTPS', link: '/en/deployment/https' }
-          ]
-        },
-        {
-          text: 'Development',
-          items: [
-            { text: 'Setup', link: '/en/development/setup' },
-            { text: 'Project Structure', link: '/en/development/structure' },
-            { text: 'Frontend', link: '/en/development/frontend' },
-            { text: 'Backend', link: '/en/development/backend' },
-            { text: 'Contributing', link: '/en/development/contributing' }
           ]
         },
         {
