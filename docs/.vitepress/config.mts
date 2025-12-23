@@ -82,8 +82,6 @@ export default defineConfig({
             { text: '系统设置', link: '/zh/api/settings' },
             { text: '系统诊断', link: '/zh/api/system' },
             { text: '更新管理', link: '/zh/api/update' },
-            { text: '网络信息', link: '/zh/api/network' },
-            { text: '审计记录', link: '/zh/api/audit' },
             { text: 'MosDNS 管理', link: '/zh/api/mosdns' },
             { text: 'Sing-box 管理', link: '/zh/api/singbox' },
             { text: 'Mihomo 管理', link: '/zh/api/mihomo' },
