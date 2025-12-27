@@ -206,10 +206,89 @@ jobs:
           cd ..
           chmod +x dist/msm
 
-          tar -czf "dist/msm-${VERSION}-${{ matrix.target }}.tar.gz" -C dist msm
-          rm -f dist/msm
+          # macOS 需要保留二进制用于 Tauri 构建，稍后再打包
+          if [ "${{ matrix.goos }}" != "darwin" ]; then
+            tar -czf "dist/msm-${VERSION}-${{ matrix.target }}.tar.gz" -C dist msm
+            rm -f dist/msm
+          fi
 
-      - name: 上传构建产物
+      # macOS 桌面应用构建
+      - name: Setup Rust (macOS only)
+        if: matrix.goos == 'darwin'
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 安装 DMG 打包工具 (macOS only)
+        if: matrix.goos == 'darwin'
+        shell: bash
+        run: |
+          brew install create-dmg
+
+      - name: 构建 Tauri 桌面应用 (macOS only)
+        if: matrix.goos == 'darwin'
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.prepare.outputs.version }}"
+
+          export TAURI_APP_VERSION="${VERSION}"
+          export TAURI_BUILD_VERSION="${VERSION}"
+
+          cd frontend
+
+          # 安装前端依赖（确保 Tauri 构建环境）
+          npm ci --no-audit --no-fund
+
+          WORKSPACE="$PWD"
+          SRC_TAURI_DIR="$WORKSPACE/src-tauri"
+          DIST_ROOT="$WORKSPACE/../dist"
+
+          # 确保目录存在；如存在开发用的 msm 可执行文件符号链接，先移除再创建目录
+          mkdir -p "$SRC_TAURI_DIR"
+          if [ -e "$SRC_TAURI_DIR/msm" ] || [ -L "$SRC_TAURI_DIR/msm" ]; then
+            rm -rf "$SRC_TAURI_DIR/msm"
+          fi
+          mkdir -p "$SRC_TAURI_DIR/msm"
+
+          # 直接复制已编译的二进制到 src-tauri/msm
+          cp "$DIST_ROOT/msm" "$SRC_TAURI_DIR/msm/msm"
+          chmod +x "$SRC_TAURI_DIR/msm/msm"
+
+          # 复制必要的资源文件
+          cp about.html dist/ || true
+          cp icon.png dist/ || true
+
+          # 使用 Tauri 构建 DMG，跳过 beforeBuildCommand（前端已构建）
+          npm run tauri build -- --skip-before-build-command --app-version "$VERSION" --app-short-version "$VERSION"
+
+          # 复制生成的 DMG 到 dist 目录
+          mkdir -p "$DIST_ROOT"
+          cp "$SRC_TAURI_DIR/target/release/bundle/dmg"/*.dmg "$DIST_ROOT/msm-desktop-${VERSION}-${{ matrix.target }}.dmg"
+
+          # 现在打包二进制 tar.gz
+          cd "$DIST_ROOT"
+          tar -czf "msm-${VERSION}-${{ matrix.target }}.tar.gz" msm
+          rm -f msm
+
+          ls -l "$DIST_ROOT"
+
+      - name: 上传构建产物 - 二进制 (macOS)
+        if: matrix.goos == 'darwin'
+        uses: actions/upload-artifact@v4
+        with:
+          name: msm-${{ needs.prepare.outputs.version }}-${{ matrix.target }}
+          path: dist/msm-${{ needs.prepare.outputs.version }}-${{ matrix.target }}.tar.gz
+          if-no-files-found: error
+
+      - name: 上传构建产物 - DMG (macOS)
+        if: matrix.goos == 'darwin'
+        uses: actions/upload-artifact@v4
+        with:
+          name: msm-desktop-${{ needs.prepare.outputs.version }}-${{ matrix.target }}
+          path: dist/msm-desktop-${{ needs.prepare.outputs.version }}-${{ matrix.target }}.dmg
+          if-no-files-found: error
+
+      - name: 上传构建产物 (Linux)
+        if: matrix.goos != 'darwin'
         uses: actions/upload-artifact@v4
         with:
           name: msm-${{ needs.prepare.outputs.version }}-${{ matrix.target }}
@@ -287,6 +366,8 @@ jobs:
 
             ### 💾 支持的平台
 
+            #### 命令行版本（CLI）
+
             | 平台 | 架构 | 文件 |
             |------|------|------|
             | 🐧 Linux | amd64 (glibc) | `msm-${{ needs.prepare.outputs.version }}-linux-amd64.tar.gz` |
@@ -299,7 +380,16 @@ jobs:
             | 🍎 macOS | amd64 (Intel) | `msm-${{ needs.prepare.outputs.version }}-darwin-amd64.tar.gz` |
             | 🍎 macOS | arm64 (Apple Silicon) | `msm-${{ needs.prepare.outputs.version }}-darwin-arm64.tar.gz` |
 
+            #### 桌面应用版本（Desktop）
+
+            | 平台 | 架构 | 文件 |
+            |------|------|------|
+            | 🍎 macOS | amd64 (Intel) | `msm-desktop-${{ needs.prepare.outputs.version }}-darwin-amd64.dmg` |
+            | 🍎 macOS | arm64 (Apple Silicon) | `msm-desktop-${{ needs.prepare.outputs.version }}-darwin-arm64.dmg` |
+
             ### 🚀 快速安装
+
+            #### 命令行版本（CLI）
 
             ```bash
             # 使用一键安装脚本（推荐）
@@ -311,6 +401,20 @@ jobs:
             sudo mv msm /usr/local/bin/msm
             sudo chmod +x /usr/local/bin/msm
             ```
+
+            #### 桌面应用版本（Desktop）
+
+            **macOS 用户：**
+
+            1. 下载对应架构的 DMG 文件：
+               - Intel 芯片：`msm-desktop-${{ needs.prepare.outputs.version }}-darwin-amd64.dmg`
+               - Apple Silicon (M1/M2/M3)：`msm-desktop-${{ needs.prepare.outputs.version }}-darwin-arm64.dmg`
+
+            2. 双击 DMG 文件，将应用拖入 Applications 文件夹
+
+            3. 首次打开时，如果遇到"无法验证开发者"提示：
+               - 打开"系统设置" → "隐私与安全性"
+               - 点击"仍要打开"按钮
 
             ### 📚 文档
 
@@ -324,7 +428,9 @@ jobs:
           makeLatest: true
           allowUpdates: true
           replacesArtifacts: true
-          artifacts: dist/**/msm-${{ needs.prepare.outputs.version }}-*.tar.gz
+          artifacts: |
+            dist/**/msm-${{ needs.prepare.outputs.version }}-*.tar.gz
+            dist/**/msm-desktop-${{ needs.prepare.outputs.version }}-*.dmg
 
   docker:
     name: 构建并推送 Docker 镜像
