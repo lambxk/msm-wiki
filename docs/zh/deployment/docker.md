@@ -2,6 +2,8 @@
 
 适用于希望用容器管理 MSM 的场景。
 
+> ⚠️ 目前 Docker 部署仅支持 **Host 网络模式**（`network_mode: host` / `--network host`），不支持桥接模式（`ports:` / `-p` 端口映射）。
+
 ## 安装 Docker
 
 ```bash
@@ -23,8 +25,7 @@ services:
     image: doumao/msm:latest
     container_name: msm
     restart: unless-stopped
-    ports:
-      - "7777:7777"
+    network_mode: host
     volumes:
       - /opt/msm/config:/app/config
       - /opt/msm/data:/app/data

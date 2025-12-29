@@ -1,10 +1,10 @@
-# MSM - MosDNS Singbox Mihomo Manager
+# MSM
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/msmbox/msm.svg)](https://hub.docker.com/r/msmbox/msm)
 [![Docker Image Size](https://img.shields.io/docker/image-size/msmbox/msm/latest.svg)](https://hub.docker.com/r/msmbox/msm)
 [![GitHub](https://img.shields.io/badge/GitHub-msm9527%2Fmsm-blue.svg)](https://github.com/msm9527/msm-wiki)
 
-**MSM** 是一个功能强大的代理和 DNS 管理工具，集成了 MosDNS、Sing-box 和 Mihomo，提供统一的 Web 管理界面。
+**MSM** 是一个功能强大的代理和 DNS 管理工具，集成提供统一的 Web 管理界面。
 
 ## ✨ 主要特性
 
@@ -28,17 +28,14 @@ docker run -d \
   --privileged \
   --device /dev/net/tun \
   --sysctl net.ipv4.ip_forward=1 \
-  -p 7777:7777 \
-  -p 53:53/udp \
-  -p 53:53/tcp \
-  -p 7890:7890 \
+  --network host \
   -v /opt/msm:/opt/msm \
   msmbox/msm:latest
 ```
 
 访问管理界面：`http://localhost:7777`
 
-> **注意**: 容器需要特权模式（`--privileged`）和 TUN 设备访问权限以支持透明代理、TUN 模式等高级网络功能。
+> **注意**: 目前 Docker 部署仅支持 `--network host`（不支持 `-p`/`ports` 端口映射），并需要特权模式（`--privileged`）和 TUN 设备访问权限以支持透明代理、TUN 模式等高级网络功能。
 
 ### Docker Compose
 
@@ -50,19 +47,12 @@ services:
     image: msmbox/msm:latest
     container_name: msm
     restart: unless-stopped
+    network_mode: host
     privileged: true
     devices:
       - /dev/net/tun
     sysctls:
       - net.ipv4.ip_forward=1
-    ports:
-      - "7777:7777"   # Web 管理界面
-      - "53:53/udp"   # DNS 服务 (UDP)
-      - "53:53/tcp"   # DNS 服务 (TCP)
-      - "1053:1053"   # DNS 备用端口
-      - "7890:7890"   # HTTP 代理
-      - "7891:7891"   # SOCKS5 代理
-      - "7892:7892"   # 混合代理
     volumes:
       - ./msm-data:/opt/msm
     environment:
@@ -113,7 +103,7 @@ docker run -d \
   --privileged \
   --device /dev/net/tun \
   --sysctl net.ipv4.ip_forward=1 \
-  -p 7777:7777 \
+  --network host \
   -v /your/data/path:/opt/msm \
   msmbox/msm:latest
 ```
@@ -126,9 +116,7 @@ docker run -d \
    ```
 
 2. **限制网络访问**：
-   ```bash
-   -p 127.0.0.1:7777:7777  # 只允许本地访问
-   ```
+   Host 模式下无法通过端口映射限制访问，请在宿主机上通过防火墙限制 `7777` 端口访问（仅允许可信网段/来源）。
 
 3. **特权模式说明**：
    - 容器以 root 用户运行以支持透明代理、TUN 设备等高级网络功能
@@ -172,6 +160,7 @@ docker ps --format "table {{.Names}}\t{{.Status}}"
 ## ⚠️ 重要说明
 
 - 容器以 **root 权限**运行，并需要 **特权模式** 以支持透明代理、TUN 设备等高级网络功能
+- Docker 部署目前仅支持 **Host 网络模式**（`--network host` / `network_mode: host`），不支持桥接模式（端口映射）
 - 所有网络功能（iptables、路由配置等）均由 Golang 实现，无需外部依赖
 - 自动映射 `/dev/net/tun` 设备以支持 TUN 模式
 - 建议在可信网络环境中运行，或配置适当的网络隔离措施

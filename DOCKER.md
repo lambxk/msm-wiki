@@ -12,12 +12,14 @@ MSM 官方 Docker 镜像，支持多架构部署。
 
 ## 快速开始
 
+> ⚠️ 目前 Docker 部署仅支持 **Host 网络模式**（`--network host` / `network_mode: host`），不支持桥接模式（`-p` / `ports:` 端口映射）。
+
 ### 基础运行
 
 ```bash
 docker run -d \
   --name msm \
-  -p 7777:7777 \
+  --network host \
   -v msm-data:/opt/msm \
   --restart unless-stopped \
   msmbox/msm:latest
@@ -30,14 +32,7 @@ docker run -d \
 ```bash
 docker run -d \
   --name msm \
-  -p 7777:7777 \
-  -p 53:53/udp \
-  -p 53:53/tcp \
-  -p 1053:1053/udp \
-  -p 7890:7890 \
-  -p 7891:7891 \
-  -p 7892:7892 \
-  -p 6666:6666 \
+  --network host \
   -v msm-data:/opt/msm \
   -v msm-logs:/var/log/msm \
   -e TZ=Asia/Shanghai \
@@ -79,15 +74,7 @@ services:
     image: msmbox/msm:latest
     container_name: msm
     restart: unless-stopped
-    ports:
-      - "7777:7777"
-      - "53:53/udp"
-      - "53:53/tcp"
-      - "1053:1053/udp"
-      - "7890:7890"
-      - "7891:7891"
-      - "7892:7892"
-      - "6666:6666"
+    network_mode: host
     volumes:
       - msm-data:/opt/msm
       - msm-logs:/var/log/msm
@@ -121,19 +108,9 @@ docker-compose up -d
 
 ## 网络模式
 
-### 默认桥接模式（推荐）
+目前仅支持 Host 网络模式，不支持桥接模式（端口映射 `-p` / `ports:`）。
 
-适合大多数场景：
-
-```bash
-docker run -d \
-  --name msm \
-  -p 7777:7777 \
-  -v msm-data:/opt/msm \
-  msmbox/msm:latest
-```
-
-### Host 网络模式
+### Host 网络模式（必选）
 
 适合需要直接访问宿主机网络的场景（如 DNS 服务）：
 
@@ -153,18 +130,7 @@ docker run -d \
 
 如果宿主机的 53 端口被占用（如 systemd-resolved），可以：
 
-**方法1**：使用其他端口
-
-```bash
-docker run -d \
-  --name msm \
-  -p 7777:7777 \
-  -p 5353:53/udp \
-  -v msm-data:/opt/msm \
-  msmbox/msm:latest
-```
-
-**方法2**：停止 systemd-resolved
+Host 模式下无法通过 `-p` 进行端口重映射，请先释放宿主机 53 端口（例如停止 systemd-resolved）：
 
 ```bash
 sudo systemctl stop systemd-resolved
@@ -209,7 +175,7 @@ docker pull msmbox/msm:latest
 # 重新创建容器
 docker run -d \
   --name msm \
-  -p 7777:7777 \
+  --network host \
   -v msm-data:/opt/msm \
   msmbox/msm:latest
 ```
@@ -234,5 +200,3 @@ docker-compose up -d
 - [问题反馈](https://github.com/msm9527/msm/issues)
 
 ## 许可证
-
-本项目基于 MIT 许可证开源。

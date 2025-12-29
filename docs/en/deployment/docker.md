@@ -1,5 +1,7 @@
 # Docker Deployment
 
+> Note: Docker deployment currently supports **host network mode only** (`network_mode: host` / `--network host`). Bridge mode (`ports:` / `-p`) is not supported.
+
 ```bash
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
@@ -14,8 +16,7 @@ services:
     image: doumao/msm:latest
     container_name: msm
     restart: unless-stopped
-    ports:
-      - "7777:7777"
+    network_mode: host
     volumes:
       - /opt/msm/config:/app/config
       - /opt/msm/data:/app/data
