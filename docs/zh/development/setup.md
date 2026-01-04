@@ -11,7 +11,7 @@
 ## 获取代码
 
 ```bash
-git clone https://github.com/doumao/msm.git
+git clone https://github.com/msm9527/msm-wiki.git msm
 cd msm
 ```
 
