@@ -383,8 +383,8 @@ check_port_conflicts() {
                 # 备份并修改 resolv.conf
                 if [ -L /etc/resolv.conf ]; then
                     rm /etc/resolv.conf
-                    echo "nameserver 8.8.8.8" > /etc/resolv.conf
-                    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+                    echo "nameserver 223.5.5.5" > /etc/resolv.conf
+                    echo "nameserver 114.114.114.114" >> /etc/resolv.conf
                     print_success "已更新 DNS 配置"
                 fi
             fi
@@ -426,8 +426,8 @@ check_port_conflicts() {
                 # 备份并修改 resolv.conf
                 if [ -L /etc/resolv.conf ]; then
                     rm /etc/resolv.conf
-                    echo "nameserver 8.8.8.8" > /etc/resolv.conf
-                    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+                    echo "nameserver 223.5.5.5" > /etc/resolv.conf
+                    echo "nameserver 114.114.114.114" >> /etc/resolv.conf
                     print_success "已更新 DNS 配置"
                 fi
             fi
