@@ -54,6 +54,10 @@ print_proxy_tips() {
     print_info "  export http_proxy=http://192.168.12.239:6152"
     print_info "  export all_proxy=socks5://192.168.12.239:6153"
     print_info "  如通过 sudo 运行，建议使用 sudo -E 保留代理环境变量"
+    print_info "也可在执行脚本时直接传入代理地址(示例)："
+    print_info "  bash install.sh http://192.168.12.239:6152"
+    print_info "  bash install.sh socks5://192.168.12.239:6153"
+    print_info "  curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash -s -- http://192.168.12.239:6152"
 }
 
 normalize_proxy_env() {
@@ -61,6 +65,31 @@ normalize_proxy_env() {
     [ -n "$https_proxy" ] || [ -z "$HTTPS_PROXY" ] || export https_proxy="$HTTPS_PROXY"
     [ -n "$all_proxy" ] || [ -z "$ALL_PROXY" ] || export all_proxy="$ALL_PROXY"
     [ -n "$no_proxy" ] || [ -z "$NO_PROXY" ] || export no_proxy="$NO_PROXY"
+}
+
+apply_proxy_from_input() {
+    local proxies=("$@")
+
+    if [ "${#proxies[@]}" -eq 0 ] && [ -n "${MSM_PROXY:-}" ]; then
+        read -r -a proxies <<< "$MSM_PROXY"
+    fi
+
+    for proxy in "${proxies[@]}"; do
+        [ -n "$proxy" ] || continue
+
+        if echo "$proxy" | grep -Eqi '^(socks5h?|socks4a?|socks4|socks)://'; then
+            export all_proxy="$proxy"
+            export ALL_PROXY="$proxy"
+            continue
+        fi
+
+        if echo "$proxy" | grep -Eqi '^https?://'; then
+            export http_proxy="$proxy"
+            export https_proxy="$proxy"
+            export HTTP_PROXY="$proxy"
+            export HTTPS_PROXY="$proxy"
+        fi
+    done
 }
 
 # 拼接代理地址
@@ -723,6 +752,7 @@ main() {
 
     # 代理环境变量兼容处理
     normalize_proxy_env
+    apply_proxy_from_input "$@"
 
     # 检测操作系统和架构
     local os=$(detect_os)
@@ -767,4 +797,4 @@ main() {
 }
 
 # 运行主函数
-main
+main "$@"
