@@ -62,13 +62,13 @@ wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | s
 **推荐镜像**（全球加速，国内优选）：
 ```bash
 # 普通用户
-curl -fsSL https://edgeone.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 
 # root 用户
-curl -fsSL https://edgeone.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
+curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 
 # 如果 curl 连接失败，可指定 UA 重试
-curl -fsSL -A "Wget/1.24.5" https://edgeone.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
+curl -fsSL -A "Wget/1.24.5" https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 ```
 
 **其他可选镜像**：
@@ -81,9 +81,6 @@ curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com/msm9527/ms
 
 # 国内线路优化（不建议大文件下载）(普通用户)
 curl -fsSL https://ghfast.top/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-
-# 备用镜像 (普通用户)
-curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
 **IPv6 用户**：
@@ -98,10 +95,10 @@ curl -fsSL https://v6.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm
 **安装脚本下载失败时的处理**：
 ```bash
 # 使用代理转发 GitHub API/Release 下载（普通用户示例）
-MSM_GITHUB_PROXY=https://cdn.gh-proxy.org curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+MSM_GITHUB_PROXY=https://gh-proxy.org curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 
 # 若 curl 连接失败，可改用 wget
-MSM_GITHUB_PROXY=https://cdn.gh-proxy.org wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+MSM_GITHUB_PROXY=https://gh-proxy.org wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 :::
 

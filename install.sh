@@ -20,6 +20,7 @@ GITHUB_PROXY="${MSM_GITHUB_PROXY:-${GITHUB_PROXY:-}}"
 GITHUB_PROXY="${GITHUB_PROXY%/}"
 GITHUB_PROXY_CANDIDATES=(
     "$GITHUB_PROXY"
+    "https://gh-proxy.org"
     "https://edgeone.gh-proxy.org"
     "https://edgecname.gh-proxy.com"
     "https://hk.gh-proxy.org"
@@ -27,7 +28,6 @@ GITHUB_PROXY_CANDIDATES=(
     "https://cdn.gh-proxy.org"
     "https://cdn.gh-proxy.com"
     "https://ghfast.top"
-    "https://gh-proxy.org"
     "https://v6.gh-proxy.org"
 )
 
@@ -60,12 +60,13 @@ build_proxy_url() {
 fetch_text() {
     local url="$1"
     local result=""
-    local urls=("$url")
+    local urls=()
 
     for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
         [ -n "$proxy" ] || continue
         urls+=("$(build_proxy_url "$proxy" "$url")")
     done
+    urls+=("$url")
 
     for u in "${urls[@]}"; do
         if [ "$DOWNLOAD_CMD" = "wget" ]; then
@@ -86,12 +87,13 @@ fetch_text() {
 download_with_fallback() {
     local url="$1"
     local output="$2"
-    local urls=("$url")
+    local urls=()
 
     for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
         [ -n "$proxy" ] || continue
         urls+=("$(build_proxy_url "$proxy" "$url")")
     done
+    urls+=("$url")
 
     for u in "${urls[@]}"; do
         if [ "$DOWNLOAD_CMD" = "wget" ]; then
