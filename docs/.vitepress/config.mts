@@ -40,6 +40,7 @@ export default defineConfig({
           text: '快速开始',
           items: [
             { text: '安装部署', link: '/zh/guide/install' },
+            { text: 'Docker 部署', link: '/zh/guide/docker' },
             { text: '首次使用', link: '/zh/guide/first-use' },
             { text: '完整使用流程', link: '/zh/guide/complete-workflow' }
           ]
@@ -65,6 +66,13 @@ export default defineConfig({
             { text: 'Mihomo 管理', link: '/zh/guide/mihomo' },
             { text: '配置编辑', link: '/zh/guide/config-editor' },
             { text: '日志查看', link: '/zh/guide/logs' }
+          ]
+        },
+        {
+          text: '维护管理',
+          items: [
+            { text: '更新升级', link: '/zh/guide/update' },
+            { text: '备份恢复', link: '/zh/guide/backup-restore' }
           ]
         },
         {
