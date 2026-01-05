@@ -25,8 +25,9 @@ body:
       label: 部署方式
       options:
         - Docker / docker-compose
-        - 单二进制（后端内置前端）
-        - 前后端分离部署
+        - 下载单二进制直接部署
+        - 一键安装脚本安装
+        - macos使用app安装
         - 其他
     validations:
       required: true
