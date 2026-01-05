@@ -1,0 +1,122 @@
+name: 问题反馈
+description: 报告一个 Bug
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请按模板提交问题，不按模板提交的 issue 可能会被直接关闭。
+
+        在提交前请先：
+        - 搜索已有 issue（含关闭的）
+        - 查看 Telegram 频道是否已有相同问题：https://t.me/msmwiki
+        - 需要交流排查可到 Telegram 交流群：https://t.me/msm_home
+  - type: checkboxes
+    id: ensure
+    attributes:
+      label: 提交前确认
+      description: 请确认以下事项
+      options:
+        - label: 我已使用最新版本（对照 release）：https://github.com/msm9527/msm/releases/latest
+          required: true
+        - label: 我已在 issue 列表中搜索过同类问题：https://github.com/msm9527/msm/issues
+          required: true
+        - label: 我已填写并修改标题，使其能概括问题
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: MSM 版本
+      description: 例如 v1.2.3（可在界面/日志/--version 查看）
+      placeholder: vX.Y.Z
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: 部署方式
+      options:
+        - Docker / docker-compose
+        - 单二进制（后端内置前端）
+        - 前后端分离部署
+        - 其他
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: 运行系统
+      options:
+        - Linux
+        - Windows
+        - macOS
+        - 其他
+    validations:
+      required: true
+  - type: dropdown
+    id: arch
+    attributes:
+      label: CPU 架构
+      options:
+        - amd64/x86_64
+        - arm64/aarch64
+        - arm/v7
+        - 其他
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: 影响范围（可多选）
+      options:
+        - label: 后端（API/服务管理）
+        - label: 前端（页面/交互）
+        - label: MosDNS
+        - label: SingBox
+        - label: Mihomo
+        - label: 其他/不确定
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 问题描述
+      description: 描述发生了什么、什么时候发生、是否稳定复现
+      placeholder: |
+        1) ...
+        2) ...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤（可选）
+      placeholder: |
+        1) ...
+        2) ...
+        3) ...
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为（可选）
+      placeholder: |
+        期望看到的结果是...
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志/报错信息
+      description: 请粘贴关键日志（可脱敏），包含启动日志、报错堆栈、相关命令输出等
+      render: bash
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: 相关配置（可选，可脱敏）
+      description: 如与 MosDNS/SingBox/Mihomo 配置相关，请粘贴最小必要片段
+      render: yaml
+    validations:
+      required: false
