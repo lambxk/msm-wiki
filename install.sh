@@ -118,7 +118,15 @@ fetch_text() {
     done
     urls+=("$url")
 
+    local attempt=0
     for u in "${urls[@]}"; do
+        attempt=$((attempt + 1))
+        if [ $attempt -eq 1 ] && [[ "$u" == *"152.69.226.93:5000"* ]]; then
+            print_info "使用 MSM 专用加速获取..."
+        elif [ $attempt -gt 1 ]; then
+            print_info "尝试备用镜像 ($attempt)..."
+        fi
+
         if [ "$DOWNLOAD_CMD" = "wget" ]; then
             result=$(wget -qO- "$u" 2>/dev/null || true)
         else
@@ -145,17 +153,26 @@ download_with_fallback() {
     done
     urls+=("$url")
 
+    local attempt=0
     for u in "${urls[@]}"; do
+        attempt=$((attempt + 1))
+        if [ $attempt -eq 1 ] && [[ "$u" == *"152.69.226.93:5000"* ]]; then
+            print_info "使用 MSM 专用加速下载..."
+        elif [ $attempt -eq 1 ]; then
+            print_info "开始下载..."
+        else
+            print_warning "下载失败，尝试备用镜像 ($attempt)..."
+        fi
+
         if [ "$DOWNLOAD_CMD" = "wget" ]; then
-            if wget --progress=bar:force:noscroll "$u" -O "$output"; then
+            if wget --progress=bar:force:noscroll "$u" -O "$output" 2>&1; then
                 return 0
             fi
         else
-            if curl -fL "$u" -o "$output"; then
+            if curl -fL "$u" -o "$output" 2>&1; then
                 return 0
             fi
         fi
-        print_warning "下载失败，尝试下一个镜像..."
     done
 
     return 1
