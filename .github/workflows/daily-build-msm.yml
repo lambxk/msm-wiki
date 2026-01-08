@@ -95,10 +95,20 @@ jobs:
             runs_on: ubuntu-24.04
             goos: linux
             goarch: amd64
+          - target: linux-amd64-v3
+            runs_on: ubuntu-24.04
+            goos: linux
+            goarch: amd64
+            goamd64: "v3"
           - target: linux-amd64-musl
             runs_on: ubuntu-24.04
             goos: linux
             goarch: amd64
+          - target: linux-amd64-musl-v3
+            runs_on: ubuntu-24.04
+            goos: linux
+            goarch: amd64
+            goamd64: "v3"
           - target: linux-arm64
             runs_on: ubuntu-24.04
             goos: linux
@@ -159,6 +169,7 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
           GOARM: ${{ matrix.goarm || '' }}
+          GOAMD64: ${{ matrix.goamd64 || '' }}
           CGO_ENABLED: ${{ matrix.goos == 'darwin' && '1' || '0' }}
         run: |
           set -euo pipefail
@@ -196,6 +207,7 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
           GOARM: ${{ matrix.goarm || '' }}
+          GOAMD64: ${{ matrix.goamd64 || '' }}
           CGO_ENABLED: ${{ matrix.goos == 'darwin' && '1' || '0' }}
         run: |
           set -euo pipefail
@@ -372,7 +384,9 @@ jobs:
             | 平台 | 架构 | 文件 |
             |------|------|------|
             | 🐧 Linux | amd64 (glibc) | `msm-${{ needs.prepare.outputs.version }}-linux-amd64.tar.gz` |
+            | 🐧 Linux | amd64-v3 (glibc, 优化版) | `msm-${{ needs.prepare.outputs.version }}-linux-amd64-v3.tar.gz` |
             | 🐧 Linux | amd64 (musl/Alpine) | `msm-${{ needs.prepare.outputs.version }}-linux-amd64-musl.tar.gz` |
+            | 🐧 Linux | amd64-v3 (musl/Alpine, 优化版) | `msm-${{ needs.prepare.outputs.version }}-linux-amd64-musl-v3.tar.gz` |
             | 🐧 Linux | arm64 (glibc) | `msm-${{ needs.prepare.outputs.version }}-linux-arm64.tar.gz` |
             | 🐧 Linux | arm64 (musl/Alpine) | `msm-${{ needs.prepare.outputs.version }}-linux-arm64-musl.tar.gz` |
             | 🐧 Linux | armv7 | `msm-${{ needs.prepare.outputs.version }}-linux-armv7.tar.gz` |
@@ -380,6 +394,8 @@ jobs:
             | 🐧 Linux | 386 | `msm-${{ needs.prepare.outputs.version }}-linux-386.tar.gz` |
             | 🍎 macOS | amd64 (Intel) | `msm-${{ needs.prepare.outputs.version }}-darwin-amd64.tar.gz` |
             | 🍎 macOS | arm64 (Apple Silicon) | `msm-${{ needs.prepare.outputs.version }}-darwin-arm64.tar.gz` |
+
+            > **注意：** amd64-v3 版本针对较新的 CPU 进行了优化（需要支持 AVX、AVX2 等指令集），性能更好但兼容性较低。如果不确定，请使用标准的 amd64 版本。
 
             #### 桌面应用版本（Desktop）
 
@@ -520,6 +536,8 @@ jobs:
           echo "  - linux/arm/v7"
           echo "  - linux/arm/v6"
           echo "  - linux/386"
+          echo ""
+          echo "注意: Docker 镜像使用标准 amd64 版本，amd64-v3 优化版仅作为独立二进制文件提供"
           echo ""
           echo "使用方式:"
           echo "  docker pull msmbox/msm:latest"
