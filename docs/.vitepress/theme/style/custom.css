@@ -1,0 +1,459 @@
+/**
+ * MSM Wiki 自定义样式
+ * 实现紧凑、现代、高信息密度的设计
+ */
+
+/* ==================== 全局样式优化 ==================== */
+
+/* 基础字体和行高 */
+:root {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--msm-font-family-base);
+  font-size: var(--msm-font-size-base);
+  line-height: var(--msm-line-height-normal);
+  color: var(--msm-c-text-1);
+  background-color: var(--msm-c-bg);
+}
+
+/* ==================== 布局优化 ==================== */
+
+/* 增加内容区域宽度 */
+.VPDoc.has-sidebar .container {
+  max-width: var(--msm-layout-max-width) !important;
+}
+
+.VPDoc .content-container {
+  max-width: var(--msm-content-max-width) !important;
+}
+
+/* 侧边栏优化 */
+.VPSidebar {
+  width: var(--msm-sidebar-width) !important;
+  padding: var(--msm-space-4) !important;
+}
+
+/* 减少内容区域内边距 */
+.VPDoc .content {
+  padding: var(--msm-space-6) var(--msm-space-8) !important;
+}
+
+/* ==================== 标题样式优化 ==================== */
+
+/* 极致紧凑的标题间距 */
+.vp-doc h1 {
+  margin-top: var(--msm-space-6);
+  margin-bottom: var(--msm-space-4);
+  font-size: var(--msm-font-size-4xl);
+  font-weight: var(--msm-font-weight-bold);
+  line-height: var(--msm-line-height-tight);
+  letter-spacing: -0.02em;
+}
+
+.vp-doc h2 {
+  margin-top: var(--msm-space-8);
+  margin-bottom: var(--msm-space-3);
+  padding-top: var(--msm-space-4);
+  font-size: var(--msm-font-size-2xl);
+  font-weight: var(--msm-font-weight-bold);
+  line-height: var(--msm-line-height-tight);
+  border-top: 1px solid var(--msm-c-border);
+}
+
+.vp-doc h2:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.vp-doc h3 {
+  margin-top: var(--msm-space-6);
+  margin-bottom: var(--msm-space-2);
+  font-size: var(--msm-font-size-xl);
+  font-weight: var(--msm-font-weight-semibold);
+  line-height: var(--msm-line-height-snug);
+}
+
+.vp-doc h4 {
+  margin-top: var(--msm-space-5);
+  margin-bottom: var(--msm-space-2);
+  font-size: var(--msm-font-size-lg);
+  font-weight: var(--msm-font-weight-semibold);
+}
+
+/* ==================== 段落和文本优化 ==================== */
+
+/* 极致紧凑的段落和列表 */
+.vp-doc p {
+  margin: var(--msm-space-2) 0;
+  line-height: var(--msm-line-height-normal);
+}
+
+.vp-doc strong {
+  font-weight: var(--msm-font-weight-semibold);
+  color: var(--msm-c-text-1);
+}
+
+.vp-doc a {
+  color: var(--msm-c-brand);
+  text-decoration: none;
+  transition: color var(--msm-transition-fast);
+}
+
+.vp-doc a:hover {
+  color: var(--msm-c-brand-light);
+}
+
+/* ==================== 列表优化 ==================== */
+
+.vp-doc ul,
+.vp-doc ol {
+  margin: var(--msm-space-2) 0;
+  padding-left: var(--msm-space-5);
+}
+
+.vp-doc li {
+  margin: var(--msm-space-1) 0;
+  line-height: var(--msm-line-height-normal);
+}
+
+.vp-doc li > p {
+  margin: 0;
+}
+
+/* 嵌套列表 */
+.vp-doc li > ul,
+.vp-doc li > ol {
+  margin: var(--msm-space-1) 0;
+}
+
+/* ==================== 代码块优化 ==================== */
+
+/* 行内代码 */
+.vp-doc :not(pre) > code {
+  padding: 0.2em 0.4em;
+  margin: 0 0.1em;
+  font-size: 0.9em;
+  font-family: var(--msm-font-family-mono);
+  background-color: var(--msm-c-bg-mute);
+  border: 1px solid var(--msm-c-border);
+  border-radius: var(--msm-radius-sm);
+  color: var(--msm-c-brand-dark);
+}
+
+.dark .vp-doc :not(pre) > code {
+  background-color: var(--msm-c-bg-soft);
+  color: var(--msm-c-brand-light);
+}
+
+/* 代码块容器 */
+.vp-doc div[class*='language-'] {
+  margin: var(--msm-space-4) 0;
+  border-radius: var(--msm-radius-md);
+  overflow: hidden;
+  box-shadow: var(--msm-shadow-2);
+  border: 1px solid var(--msm-c-border);
+}
+
+/* 代码块内容 */
+.vp-doc div[class*='language-'] pre {
+  padding: var(--msm-space-4);
+  margin: 0;
+  line-height: 1.6;
+  font-size: var(--msm-font-size-sm);
+  font-family: var(--msm-font-family-mono);
+}
+
+/* 代码块语言标识 */
+.vp-doc div[class*='language-'] .lang {
+  position: absolute;
+  top: var(--msm-space-2);
+  right: var(--msm-space-3);
+  font-size: var(--msm-font-size-xs);
+  font-weight: var(--msm-font-weight-medium);
+  color: var(--msm-c-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* 复制按钮优化 */
+.vp-doc div[class*='language-'] button.copy {
+  opacity: 0;
+  transition: opacity var(--msm-transition-fast);
+}
+
+.vp-doc div[class*='language-']:hover button.copy {
+  opacity: 1;
+}
+
+/* ==================== 表格优化 ==================== */
+
+.vp-doc table {
+  width: 100%;
+  margin: var(--msm-space-4) 0;
+  border-collapse: collapse;
+  font-size: var(--msm-font-size-sm);
+  box-shadow: var(--msm-shadow-1);
+  border-radius: var(--msm-radius-md);
+  overflow: hidden;
+}
+
+.vp-doc thead {
+  background-color: var(--msm-c-bg-soft);
+}
+
+.vp-doc th {
+  padding: var(--msm-space-3) var(--msm-space-4);
+  text-align: left;
+  font-weight: var(--msm-font-weight-semibold);
+  color: var(--msm-c-text-1);
+  border-bottom: 2px solid var(--msm-c-border);
+}
+
+.vp-doc td {
+  padding: var(--msm-space-3) var(--msm-space-4);
+  border-bottom: 1px solid var(--msm-c-border-soft);
+}
+
+.vp-doc tr:last-child td {
+  border-bottom: none;
+}
+
+.vp-doc tbody tr:hover {
+  background-color: var(--msm-c-bg-soft);
+}
+
+/* ==================== 提示框优化 ==================== */
+
+.vp-doc .custom-block {
+  margin: var(--msm-space-4) 0;
+  padding: var(--msm-space-4);
+  border-radius: var(--msm-radius-md);
+  border-left: 4px solid;
+  box-shadow: var(--msm-shadow-1);
+}
+
+.vp-doc .custom-block.tip {
+  background-color: rgba(37, 99, 235, 0.05);
+  border-color: var(--msm-c-brand);
+}
+
+.vp-doc .custom-block.warning {
+  background-color: rgba(245, 158, 11, 0.05);
+  border-color: var(--msm-c-warning);
+}
+
+.vp-doc .custom-block.danger {
+  background-color: rgba(239, 68, 68, 0.05);
+  border-color: var(--msm-c-danger);
+}
+
+.vp-doc .custom-block-title {
+  font-weight: var(--msm-font-weight-semibold);
+  margin-bottom: var(--msm-space-2);
+}
+
+/* ==================== 首页优化 ==================== */
+
+/* 英雄区 */
+.VPHome .VPHero {
+  padding: var(--msm-space-16) var(--msm-space-8) var(--msm-space-12);
+}
+
+.VPHome .VPHero .name {
+  font-size: var(--msm-font-size-5xl);
+  font-weight: var(--msm-font-weight-bold);
+  line-height: var(--msm-line-height-tight);
+  background: var(--msm-gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.VPHome .VPHero .text {
+  font-size: var(--msm-font-size-2xl);
+  font-weight: var(--msm-font-weight-medium);
+  margin-top: var(--msm-space-4);
+}
+
+.VPHome .VPHero .tagline {
+  font-size: var(--msm-font-size-lg);
+  color: var(--msm-c-text-2);
+  margin-top: var(--msm-space-3);
+  line-height: var(--msm-line-height-relaxed);
+}
+
+/* 特性卡片 */
+.VPHome .VPFeatures {
+  padding: var(--msm-space-12) var(--msm-space-8);
+}
+
+.VPHome .VPFeature {
+  padding: var(--msm-space-5);
+  border-radius: var(--msm-radius-lg);
+  border: 1px solid var(--msm-c-border);
+  background-color: var(--msm-c-bg);
+  box-shadow: var(--msm-shadow-1);
+  transition: all var(--msm-transition-base);
+}
+
+.VPHome .VPFeature:hover {
+  box-shadow: var(--msm-shadow-3);
+  transform: translateY(-2px);
+  border-color: var(--msm-c-brand-light);
+}
+
+.VPHome .VPFeature .icon {
+  font-size: var(--msm-font-size-3xl);
+  margin-bottom: var(--msm-space-3);
+}
+
+.VPHome .VPFeature .title {
+  font-size: var(--msm-font-size-lg);
+  font-weight: var(--msm-font-weight-semibold);
+  margin-bottom: var(--msm-space-2);
+}
+
+.VPHome .VPFeature .details {
+  font-size: var(--msm-font-size-sm);
+  color: var(--msm-c-text-2);
+  line-height: var(--msm-line-height-relaxed);
+}
+
+/* ==================== 导航栏优化 ==================== */
+
+.VPNav {
+  height: var(--msm-navbar-height);
+  border-bottom: 1px solid var(--msm-c-border);
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.dark .VPNav {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* ==================== 侧边栏优化 ==================== */
+
+.VPSidebar .group {
+  margin-bottom: var(--msm-space-4);
+}
+
+.VPSidebar .group + .group {
+  padding-top: var(--msm-space-4);
+  border-top: 1px solid var(--msm-c-border-soft);
+}
+
+.VPSidebar .title {
+  font-size: var(--msm-font-size-sm);
+  font-weight: var(--msm-font-weight-semibold);
+  color: var(--msm-c-text-1);
+  padding: var(--msm-space-2) 0;
+}
+
+.VPSidebar .link {
+  display: block;
+  padding: var(--msm-space-2) var(--msm-space-3);
+  font-size: var(--msm-font-size-sm);
+  color: var(--msm-c-text-2);
+  border-radius: var(--msm-radius-sm);
+  transition: all var(--msm-transition-fast);
+}
+
+.VPSidebar .link:hover {
+  color: var(--msm-c-brand);
+  background-color: var(--msm-c-bg-soft);
+}
+
+.VPSidebar .link.active {
+  color: var(--msm-c-brand);
+  background-color: rgba(37, 99, 235, 0.1);
+  font-weight: var(--msm-font-weight-medium);
+}
+
+/* ==================== 目录导航优化 ==================== */
+
+.VPDocAsideOutline {
+  padding-left: var(--msm-space-4);
+}
+
+.VPDocAsideOutline .outline-link {
+  font-size: var(--msm-font-size-sm);
+  padding: var(--msm-space-1) 0;
+  color: var(--msm-c-text-3);
+  transition: color var(--msm-transition-fast);
+}
+
+.VPDocAsideOutline .outline-link:hover {
+  color: var(--msm-c-brand);
+}
+
+.VPDocAsideOutline .outline-link.active {
+  color: var(--msm-c-brand);
+  font-weight: var(--msm-font-weight-medium);
+}
+
+/* ==================== 响应式优化 ==================== */
+
+@media (max-width: 768px) {
+  .VPDoc .content {
+    padding: var(--msm-space-4) var(--msm-space-4) !important;
+  }
+
+  .vp-doc h1 {
+    font-size: var(--msm-font-size-3xl);
+  }
+
+  .vp-doc h2 {
+    font-size: var(--msm-font-size-xl);
+  }
+
+  .vp-doc h3 {
+    font-size: var(--msm-font-size-lg);
+  }
+}
+
+/* ==================== 滚动条优化 ==================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--msm-c-bg-soft);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--msm-c-border);
+  border-radius: var(--msm-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--msm-c-text-4);
+}
+
+/* ==================== 选中文本样式 ==================== */
+
+::selection {
+  background-color: rgba(37, 99, 235, 0.2);
+  color: var(--msm-c-text-1);
+}
+
+/* ==================== 动画 ==================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn var(--msm-transition-base) ease-out;
+}
