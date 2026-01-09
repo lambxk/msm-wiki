@@ -149,6 +149,28 @@ msm-wiki/
 - [GitHub Pages](https://pages.github.com/) - 托管平台
 - [GitHub Actions](https://github.com/features/actions) - 自动部署
 
+## 🤖 自动化工作流
+
+本项目包含智能化的每日构建工作流，具有以下特性：
+
+### AI 智能总结
+- 使用 Claude AI 自动分析提交记录
+- 生成简洁的版本发布总结（3-5 个要点）
+- 自动识别功能变更、修复和优化
+
+### Release UI 优化
+- 徽章展示（构建状态、版本号、平台）
+- 折叠区域组织内容，提升可读性
+- 直接下载链接和安装指南
+- Docker 安装说明
+
+### 自动更新文档
+- 新版本信息自动同步到文档站点
+- 旧版本自动归档到历史版本
+- 包含 AI 生成的更新总结
+
+详细配置和使用说明请查看 [Release 工作流优化指南](RELEASE_WORKFLOW_GUIDE.md)。
+
 
 ## 🔗 相关链接
 
