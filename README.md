@@ -154,10 +154,10 @@ msm-wiki/
 本项目包含智能化的每日构建工作流，具有以下特性：
 
 ### AI 智能总结
-- 使用智谱 AI GLM-4 自动分析提交记录
+- 使用 ModelScope 通义千问 2.5 Coder 自动分析提交记录
 - 生成简洁的版本发布总结（3-5 个要点）
 - 自动识别功能变更、修复和优化
-- 成本极低（每月不到 ¥0.01）
+- **完全免费** - 无需付费
 
 ### Release UI 优化
 - 徽章展示（构建状态、版本号、平台）
@@ -176,7 +176,7 @@ msm-wiki/
 - 无 tag 时降级到最近 20 条提交
 
 详细配置和使用说明请查看：
-- [智谱 AI 配置指南](ZHIPU_AI_GUIDE.md) - 推荐使用，价格最低
+- [ModelScope API 配置指南](MODELSCOPE_API_GUIDE.md) - 推荐使用，完全免费
 - [Release 工作流优化指南](RELEASE_WORKFLOW_GUIDE.md)
 - [AI 技术实现详解](AI_SUMMARY_TECHNICAL_GUIDE.md)
 
