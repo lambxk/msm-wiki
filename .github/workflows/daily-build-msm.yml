@@ -50,9 +50,20 @@ jobs:
         run: |
           set -euo pipefail
 
-          VERSION="$(sed -nE 's/^[[:space:]]*version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' backend/cmd/msm/commands/root.go | head -n 1)"
+          # 优先从仓库根目录的 .version 文件读取版本号（msm 主仓库的单一真实版本源）
+          if [ -f ".version" ]; then
+            VERSION="$(tr -d '[:space:]' < .version)"
+          else
+            VERSION=""
+          fi
+
+          # 兼容旧版本：如果 .version 缺失，则回退到从源码中解析（避免旧分支直接报错）
           if [ -z "${VERSION}" ]; then
-            echo "error: 无法从 backend/cmd/msm/commands/root.go 解析版本号" >&2
+            VERSION="$(sed -nE 's/^[[:space:]]*version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' backend/cmd/msm/commands/root.go | head -n 1 || true)"
+          fi
+
+          if [ -z "${VERSION}" ]; then
+            echo "error: 无法从 .version 或 backend/cmd/msm/commands/root.go 获取版本号" >&2
             exit 1
           fi
 
