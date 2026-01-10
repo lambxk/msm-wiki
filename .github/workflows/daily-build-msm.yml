@@ -708,22 +708,22 @@ jobs:
 
             // 构建新版本的内容（与新版 releases 页面结构对齐）
             const newVersionContent = `
-> 当前稳定版本：\`v${version}\`  
-> 发布时间：${dateStr}  
-> - 发布页：<https://github.com/msm9527/msm-wiki/releases/tag/${version}>  
-> - 下载方式：同一发布页内提供各平台二进制与安装包
-
-${aiSummary}
-
-::: details 📋 构建信息
-- **源提交**: [\`${commitSha}\`](https://github.com/msm9527/msm/commit/${{ needs.prepare.outputs.commit_sha }})
-- **提交信息**: ${commitMessage}
-- **提交作者**: ${commitAuthor}
-- **提交时间**: ${commitDate}
-:::
-
----
-`;
+            > 当前稳定版本：\`v${version}\`  
+            > 发布时间：${dateStr}  
+            > - 发布页：<https://github.com/msm9527/msm-wiki/releases/tag/${version}>  
+            > - 下载方式：同一发布页内提供各平台二进制与安装包
+            
+            ${aiSummary}
+            
+            ::: details 📋 构建信息
+            - **源提交**: [\`${commitSha}\`](https://github.com/msm9527/msm/commit/${{ needs.prepare.outputs.commit_sha }})
+            - **提交信息**: ${commitMessage}
+            - **提交作者**: ${commitAuthor}
+            - **提交时间**: ${commitDate}
+            :::
+            
+            ---
+            `;
 
             // 查找"## 🚀 最新稳定版本"标记
             const latestVersionMarker = '## 🚀 最新稳定版本';
