@@ -839,6 +839,20 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: 构建前端并复制到后端（嵌入资源）
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd frontend
+          npm ci --no-audit --no-fund
+          npm run build
+
+          test -d dist
+
+          rm -rf ../backend/cmd/msm/frontend/dist
+          mkdir -p ../backend/cmd/msm/frontend
+          cp -r dist ../backend/cmd/msm/frontend/
+
       - name: 编译 MSM （用于 Tauri 打包）
         shell: bash
         env:
@@ -862,9 +876,6 @@ jobs:
           export TAURI_BUILD_VERSION="${VERSION}"
 
           cd frontend
-
-          # 安装前端依赖（确保 Tauri 构建环境）
-          npm ci --no-audit --no-fund
 
           WORKSPACE="$PWD"
           SRC_TAURI_DIR="$WORKSPACE/src-tauri"
