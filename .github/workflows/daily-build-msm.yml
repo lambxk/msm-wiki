@@ -843,8 +843,8 @@ jobs:
           set -euo pipefail
           VERSION="${{ needs.prepare.outputs.version }}"
           mkdir -p dist
-          # 解压出 msm 可执行文件
-          tar -xzf "dist/msm-${VERSION}-${{ matrix.target }}/msm-${VERSION}-${{ matrix.target }}.tar.gz" -C dist
+          # 解压出 msm 可执行文件（使用 build Job 上传的 tar.gz 产物）
+          tar -xzf "dist/msm-${VERSION}-${{ matrix.target }}.tar.gz" -C dist
           ls -l dist
 
       - name: 构建 Tauri 桌面应用
