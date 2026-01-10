@@ -831,6 +831,14 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: 安装前端依赖并构建（Tauri 桌面）
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd frontend
+          npm ci --no-audit --no-fund
+          npm run build
+
       - name: 下载 macOS CLI 构建产物
         uses: actions/download-artifact@v4
         with:
