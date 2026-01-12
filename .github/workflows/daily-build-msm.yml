@@ -11,6 +11,11 @@ on:
         required: false
         default: 'main'
         type: string
+      force_update:
+        description: '是否强制更新'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -37,6 +42,8 @@ jobs:
       previous_tag: ${{ steps.meta.outputs.previous_tag }}
       commit_count: ${{ steps.meta.outputs.commit_count }}
       ai_summary: ${{ steps.ai_summary.outputs.summary }}
+      force_update: ${{ steps.meta.outputs.force_update }}
+      skip: ${{ steps.meta.outputs.skip }}
     steps:
       - name: Checkout MSM 仓库
         uses: actions/checkout@v4
@@ -69,6 +76,7 @@ jobs:
             exit 1
           fi
 
+          FORCE_UPDATE="${{ inputs.force_update || 'false' }}"
           COMMIT_SHA="$(git rev-parse HEAD)"
           COMMIT_SHA_SHORT="$(git rev-parse --short=7 HEAD)"
           BRANCH="${{ inputs.branch || 'main' }}"
@@ -102,12 +110,25 @@ jobs:
           echo "commit_date=${COMMIT_DATE}" >> "$GITHUB_OUTPUT"
           echo "previous_tag=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
           echo "commit_count=${COMMIT_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "force_update=${FORCE_UPDATE}" >> "$GITHUB_OUTPUT"
 
           {
             echo "changelog<<EOF"
             echo "${CHANGELOG}"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
+
+          RELEASE_URL="https://github.com/msm9527/msm-wiki/releases/tag/${VERSION}"
+          if [ "${FORCE_UPDATE}" != "true" ]; then
+            STATUS="$(curl -I -s -o /dev/null -w '%{http_code}' "${RELEASE_URL}")"
+            if [ "${STATUS}" -ge 200 ] && [ "${STATUS}" -lt 400 ]; then
+              echo "检测到版本 ${VERSION} 已存在于 Release 页面 (${RELEASE_URL})，跳过后续任务"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
 
           echo "构建版本: ${VERSION}"
           echo "构建分支: ${BRANCH}"
@@ -116,6 +137,7 @@ jobs:
           echo "提交数量: ${COMMIT_COUNT}"
 
       - name: 使用 AI 生成版本总结
+        if: steps.meta.outputs.skip != 'true'
         id: ai_summary
         uses: actions/github-script@v7
         env:
@@ -246,6 +268,7 @@ jobs:
   build:
     name: 打包编译
     needs: prepare
+    if: needs.prepare.outputs.skip != 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -400,6 +423,7 @@ jobs:
   release:
     name: 发布每日构建
     needs: [prepare, build]
+    if: needs.prepare.outputs.skip != 'true'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout 当前仓库（msm-wiki）
@@ -711,6 +735,7 @@ jobs:
   docker:
     name: 构建并推送 Docker 镜像
     needs: [prepare, release]
+    if: needs.prepare.outputs.skip != 'true'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout 当前仓库
