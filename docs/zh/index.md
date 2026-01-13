@@ -117,6 +117,18 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
+::: tip 国内加速（可选）
+如果直连 GitHub 较慢，可使用社区加速镜像：
+
+```bash
+# curl
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+
+# wget
+wget -qO- https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+```
+:::
+
 安装完成后访问 `http://your-server-ip:7777`
 
 ### 配置路由器

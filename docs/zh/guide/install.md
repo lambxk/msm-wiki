@@ -69,6 +69,20 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 ```
 :::
 
+::: tip 国内加速（可选）
+直连 GitHub 较慢时，可使用社区加速镜像下载安装脚本：
+
+```bash
+# curl（普通用户）
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+
+# wget（普通用户）
+wget -qO- https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+```
+
+> 提示：如果你已在终端导出 `http_proxy`/`https_proxy`，上述命令会自动使用这些代理。
+:::
+
 ::: tip 指定版本安装
 默认安装最新版本，如需安装特定版本，可使用 `MSM_VERSION` 环境变量：
 
