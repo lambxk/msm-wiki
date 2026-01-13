@@ -16,20 +16,6 @@ NC='\033[0m' # No Color
 GITHUB_REPO="msm9527/msm-wiki"
 SERVICE_NAME="msm"
 MSM_VERSION="${MSM_VERSION:-}"
-GITHUB_PROXY="${MSM_GITHUB_PROXY:-${GITHUB_PROXY:-}}"
-GITHUB_PROXY="${GITHUB_PROXY%/}"
-GITHUB_PROXY_CANDIDATES=(
-    "$GITHUB_PROXY"
-    "https://gh-proxy.org"
-    "https://edgeone.gh-proxy.org"
-    "https://edgecname.gh-proxy.com"
-    "https://hk.gh-proxy.org"
-    "https://hkcname.gh-proxy.com"
-    "https://cdn.gh-proxy.org"
-    "https://cdn.gh-proxy.com"
-    "https://ghfast.top"
-    "https://v6.gh-proxy.org"
-)
 
 # 打印带颜色的消息
 print_info() {
@@ -48,213 +34,33 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1" >&2
 }
 
-print_proxy_tips() {
-    print_info "网络访问受限时，可配置代理后重试(示例)："
-    print_info "  export https_proxy=http://192.168.12.239:6152"
-    print_info "  export http_proxy=http://192.168.12.239:6152"
-    print_info "  export all_proxy=socks5://192.168.12.239:6153"
-    print_info "  如通过 sudo 运行，建议使用 sudo -E 保留代理环境变量"
-    print_info "也可在执行脚本时直接传入代理地址(示例)："
-    print_info "  bash install.sh http://192.168.12.239:6152"
-    print_info "  bash install.sh socks5://192.168.12.239:6153"
-    print_info "  curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash -s -- http://192.168.12.239:6152"
-    print_info ""
-    print_info "指定版本安装(示例)："
-    print_info "  MSM_VERSION=0.7.4 bash install.sh"
-    print_info "  MSM_VERSION=v0.7.4 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash"
-}
-
-normalize_proxy_env() {
-    [ -n "$http_proxy" ] || [ -z "$HTTP_PROXY" ] || export http_proxy="$HTTP_PROXY"
-    [ -n "$https_proxy" ] || [ -z "$HTTPS_PROXY" ] || export https_proxy="$HTTPS_PROXY"
-    [ -n "$all_proxy" ] || [ -z "$ALL_PROXY" ] || export all_proxy="$ALL_PROXY"
-    [ -n "$no_proxy" ] || [ -z "$NO_PROXY" ] || export no_proxy="$NO_PROXY"
-}
-
-apply_proxy_from_input() {
-    local proxies=("$@")
-
-    if [ "${#proxies[@]}" -eq 0 ] && [ -n "${MSM_PROXY:-}" ]; then
-        read -r -a proxies <<< "$MSM_PROXY"
-    fi
-
-    for proxy in "${proxies[@]}"; do
-        [ -n "$proxy" ] || continue
-
-        if echo "$proxy" | grep -Eqi '^(socks5h?|socks4a?|socks4|socks)://'; then
-            export all_proxy="$proxy"
-            export ALL_PROXY="$proxy"
-            continue
-        fi
-
-        if echo "$proxy" | grep -Eqi '^https?://'; then
-            export http_proxy="$proxy"
-            export https_proxy="$proxy"
-            export HTTP_PROXY="$proxy"
-            export HTTPS_PROXY="$proxy"
-        fi
-    done
-}
-
-# 拼接代理地址
-build_proxy_url() {
-    local base="$1"
-    local url="$2"
-    base="${base%/}"
-    echo "${base}/${url}"
-}
-
-# 获取文本内容（支持 GitHub 代理回退）
 fetch_text() {
     local url="$1"
-    local result=""
-    local urls=()
     local show_progress="${2:-true}"
 
-    # 检测是否已设置代理环境变量
-    local has_proxy=0
-    if [ -n "${http_proxy:-}" ] || [ -n "${https_proxy:-}" ] || [ -n "${all_proxy:-}" ] || \
-       [ -n "${HTTP_PROXY:-}" ] || [ -n "${HTTPS_PROXY:-}" ] || [ -n "${ALL_PROXY:-}" ]; then
-        has_proxy=1
+    if [ "$show_progress" = "true" ]; then
+        print_info "获取: $url"
     fi
 
-    # 如果用户已设置代理，优先直接使用原始 URL（通过代理访问）
-    if [ $has_proxy -eq 1 ]; then
-        urls+=("$url")
+    if [ "$DOWNLOAD_CMD" = "wget" ]; then
+        wget -qO- "$url"
+    else
+        curl -fsSL "$url"
     fi
-
-    # 构建所有代理 URL
-    for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
-        [ -n "$proxy" ] || continue
-        urls+=("$(build_proxy_url "$proxy" "$url")")
-    done
-
-    # 如果没有代理，也添加原始 URL 作为最后的备选
-    if [ $has_proxy -eq 0 ]; then
-        urls+=("$url")
-    fi
-
-    local attempt=0
-    for u in "${urls[@]}"; do
-        attempt=$((attempt + 1))
-        if [ "$show_progress" = "true" ]; then
-            if [ $attempt -eq 1 ] && [ $has_proxy -eq 1 ]; then
-                print_info "通过代理获取..."
-            elif [ $attempt -gt 1 ]; then
-                print_info "尝试备用镜像 ($attempt)..."
-            fi
-        fi
-
-        # 调试：显示实际请求的 URL（仅在环境变量 MSM_DEBUG=1 时）
-        if [ "${MSM_DEBUG:-0}" = "1" ]; then
-            print_info "请求 URL: $u"
-        fi
-
-        local success=0
-        if [ "$DOWNLOAD_CMD" = "wget" ]; then
-            if result=$(wget -qO- "$u" 2>/dev/null); then
-                success=1
-            fi
-        else
-            if result=$(curl -fsSL "$u" 2>/dev/null); then
-                success=1
-            fi
-        fi
-
-        # 调试：显示结果
-        if [ "${MSM_DEBUG:-0}" = "1" ]; then
-            if [ $success -eq 1 ]; then
-                print_info "请求成功，响应长度: ${#result} 字节"
-            else
-                print_info "请求失败"
-            fi
-        fi
-
-        if [ $success -eq 1 ] && [ -n "$result" ]; then
-            echo "$result"
-            return 0
-        fi
-    done
-
-    return 1
 }
 
-# 下载文件（支持 GitHub 代理回退）
-download_with_fallback() {
+download_file() {
     local url="$1"
     local output="$2"
-    local urls=()
 
-    # 检测是否已设置代理环境变量
-    local has_proxy=0
-    if [ -n "${http_proxy:-}" ] || [ -n "${https_proxy:-}" ] || [ -n "${all_proxy:-}" ] || \
-       [ -n "${HTTP_PROXY:-}" ] || [ -n "${HTTPS_PROXY:-}" ] || [ -n "${ALL_PROXY:-}" ]; then
-        has_proxy=1
+    print_info "开始下载..."
+    print_info "URL: $url"
+
+    if [ "$DOWNLOAD_CMD" = "wget" ]; then
+        wget --timeout=30 --read-timeout=300 --progress=bar:force:noscroll "$url" -O "$output"
+    else
+        curl --connect-timeout 30 --max-time 300 -fL --progress-bar "$url" -o "$output"
     fi
-
-    # 如果用户已设置代理，优先直接使用原始 URL（通过代理访问）
-    if [ $has_proxy -eq 1 ]; then
-        print_info "检测到代理设置，将通过代理下载..."
-        urls+=("$url")
-    fi
-
-    # 添加加速镜像 URL
-    for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
-        [ -n "$proxy" ] || continue
-        urls+=("$(build_proxy_url "$proxy" "$url")")
-    done
-
-    # 如果没有代理，也添加原始 URL 作为最后的备选
-    if [ $has_proxy -eq 0 ]; then
-        urls+=("$url")
-    fi
-
-    local attempt=0
-    for u in "${urls[@]}"; do
-        attempt=$((attempt + 1))
-
-        # 显示下载提示
-        if [ $attempt -eq 1 ] && [ $has_proxy -eq 1 ]; then
-            print_info "通过代理下载..."
-        elif [ $attempt -eq 1 ]; then
-            print_info "开始下载..."
-        else
-            print_warning "下载失败，尝试备用镜像 ($attempt)..."
-        fi
-
-        # 调试：显示实际下载的 URL
-        if [ "${MSM_DEBUG:-0}" = "1" ]; then
-            print_info "下载 URL: $u"
-        fi
-
-        local download_success=0
-        if [ "$DOWNLOAD_CMD" = "wget" ]; then
-            # wget: 30秒连接超时，300秒读取超时，显示进度条
-            if wget --timeout=30 --read-timeout=300 --progress=bar:force:noscroll "$u" -O "$output"; then
-                download_success=1
-            fi
-        else
-            # curl: 30秒连接超时，300秒最大时间，显示进度条
-            if curl --connect-timeout 30 --max-time 300 -fL --progress-bar "$u" -o "$output"; then
-                download_success=1
-            fi
-        fi
-
-        if [ $download_success -eq 1 ]; then
-            # 验证文件是否下载成功（文件大小 > 0）
-            if [ -f "$output" ] && [ -s "$output" ]; then
-                if [ "${MSM_DEBUG:-0}" = "1" ]; then
-                    local file_size=$(stat -f%z "$output" 2>/dev/null || stat -c%s "$output" 2>/dev/null || echo "unknown")
-                    print_info "下载成功，文件大小: $file_size 字节"
-                fi
-                return 0
-            else
-                print_warning "下载的文件为空或不存在"
-            fi
-        fi
-    done
-
-    return 1
 }
 
 # 检查是否为 root 用户
@@ -403,10 +209,8 @@ get_latest_version() {
 
     if [ -z "$version" ]; then
         print_error "无法获取最新版本信息"
-        print_info "可尝试设置 MSM_GITHUB_PROXY 或 GITHUB_PROXY 后重试"
-        print_info "或使用 MSM_VERSION 指定版本号，例如："
+        print_info "请检查网络连接，或使用 MSM_VERSION 指定版本号，例如："
         print_info "  MSM_VERSION=0.7.4 bash install.sh"
-        print_proxy_tips
         exit 1
     fi
 
@@ -434,23 +238,6 @@ download_msm() {
     print_info "下载地址: $download_url"
     printf '\n' >&2
 
-    # 检测代理设置并提示
-    local has_proxy=0
-    if [ -n "${http_proxy:-}" ] || [ -n "${https_proxy:-}" ] || [ -n "${all_proxy:-}" ] || \
-       [ -n "${HTTP_PROXY:-}" ] || [ -n "${HTTPS_PROXY:-}" ] || [ -n "${ALL_PROXY:-}" ]; then
-        has_proxy=1
-        print_info "已检测到代理设置，将通过代理下载"
-    else
-        # 提示用户可以使用代理加速
-        print_info "提示：如果下载速度较慢，可以："
-        print_info "  1. 按 Ctrl+C 取消，然后设置代理并使用 sudo -E："
-        print_info "     export https_proxy=http://your-proxy:port"
-        print_info "     export http_proxy=http://your-proxy:port"
-        print_info "     curl -fsSL https://raw.githubusercontent.com/.../install.sh | sudo -E bash"
-        print_info "  2. 或手动指定加速镜像："
-        print_info "     MSM_GITHUB_PROXY=https://gh-proxy.org bash install.sh"
-        print_info "  3. 或手动下载后安装（见文档）"
-    fi
     printf '\n' >&2
 
     # 创建临时目录
@@ -458,10 +245,8 @@ download_msm() {
     cd "$temp_dir"
 
     # 下载文件（显示进度条）
-    if ! download_with_fallback "$download_url" "${filename}"; then
+    if ! download_file "$download_url" "${filename}"; then
         print_error "下载失败"
-        print_info "可尝试设置 MSM_GITHUB_PROXY 或 GITHUB_PROXY 后重试"
-        print_proxy_tips
         rm -rf $temp_dir
         exit 1
     fi
@@ -875,10 +660,6 @@ main() {
 
     # 检查 root 权限
     check_root
-
-    # 代理环境变量兼容处理
-    normalize_proxy_env
-    apply_proxy_from_input "$@"
 
     # 检测操作系统和架构
     local os=$(detect_os)

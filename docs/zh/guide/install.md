@@ -69,49 +69,6 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 ```
 :::
 
-::: tip 国内加速镜像
-安装脚本已内置 MSM 专用加速链接，会自动加速 MSM 二进制文件下载。如果 GitHub 访问速度较慢，可以使用以下加速镜像下载安装脚本：
-
-**通用加速镜像**（推荐）：
-```bash
-# 普通用户
-curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-
-# root 用户
-curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
-
-# 如果 curl 连接失败，可指定 UA 重试
-curl -fsSL -A "Wget/1.24.5" https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
-```
-
-**其他可选镜像**：
-```bash
-# Fastly CDN (普通用户)
-curl -fsSL https://hk.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-
-# 全球加速（带数据统计）(普通用户)
-curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-
-# 国内线路优化（不建议大文件下载）(普通用户)
-curl -fsSL https://ghfast.top/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-```
-
-**IPv6 用户**：
-```bash
-# 普通用户
-curl -fsSL https://v6.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-
-# root 用户
-curl -fsSL https://v6.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
-```
-
-**手动指定 MSM 专用加速**（用于加速二进制文件下载）：
-```bash
-# 安装脚本会自动使用 MSM 专用加速下载二进制文件
-MSM_GITHUB_PROXY=https://gh-proxy.org curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-```
-:::
-
 ::: tip 指定版本安装
 默认安装最新版本，如需安装特定版本，可使用 `MSM_VERSION` 环境变量：
 
@@ -121,9 +78,6 @@ MSM_VERSION=0.7.4 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/
 
 # 或
 MSM_VERSION=v0.7.4 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-
-# 结合加速镜像使用
-MSM_VERSION=0.7.4 curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
 查看所有可用版本：[GitHub Releases](https://github.com/msm9527/msm-wiki/releases)

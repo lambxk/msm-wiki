@@ -12,14 +12,7 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 ```
 
 ::: tip 提示
-安装脚本会自动检测已安装的版本，如果有新版本会自动更新。脚本已内置 MSM 专用加速链接，国内用户下载速度更快。
-:::
-
-::: tip 国内加速
-如果 GitHub 访问速度较慢，可以手动指定 MSM 专用加速：
-```bash
-MSM_GITHUB_PROXY=https://gh-proxy.org curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-```
+安装脚本会自动检测已安装的版本，如果有新版本会自动更新。
 :::
 
 ### 方式二：手动更新
@@ -41,21 +34,9 @@ sudo tar -czf /root/msm-backup-$(date +%Y%m%d).tar.gz /root/.msm
 
 访问 [GitHub Releases](https://github.com/msm9527/msm-wiki/releases/latest) 下载最新版本。
 
-::: tip 国内加速下载
-使用 MSM 专用加速链接下载更快：
-```bash
-# 将下载链接前加上 https://gh-proxy.org/
-# 例如：https://gh-proxy.org/https://github.com/msm9527/msm-wiki/releases/download/0.7.4/msm-0.7.4-linux-amd64.tar.gz
-```
-:::
-
 **Linux amd64**:
 ```bash
 # 下载最新版本（以 0.7.4 为例）
-# 使用 MSM 专用加速（推荐）
-wget https://gh-proxy.org/https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.4-linux-amd64.tar.gz
-
-# 或直接从 GitHub 下载
 wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.4-linux-amd64.tar.gz
 
 # 解压
@@ -68,10 +49,6 @@ sudo chmod +x /usr/local/bin/msm
 
 **Linux arm64**:
 ```bash
-# 使用 MSM 专用加速（推荐）
-wget https://gh-proxy.org/https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.4-linux-arm64.tar.gz
-
-# 或直接从 GitHub 下载
 wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.4-linux-arm64.tar.gz
 
 tar -xzf msm-0.7.4-linux-arm64.tar.gz
@@ -81,10 +58,6 @@ sudo chmod +x /usr/local/bin/msm
 
 **macOS amd64**:
 ```bash
-# 使用 MSM 专用加速（推荐）
-wget https://gh-proxy.org/https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.4-darwin-amd64.tar.gz
-
-# 或直接从 GitHub 下载
 wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.4-darwin-amd64.tar.gz
 
 tar -xzf msm-0.7.4-darwin-amd64.tar.gz
@@ -94,10 +67,6 @@ sudo chmod +x /usr/local/bin/msm
 
 **macOS arm64**:
 ```bash
-# 使用 MSM 专用加速（推荐）
-wget https://gh-proxy.org/https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.4-darwin-arm64.tar.gz
-
-# 或直接从 GitHub 下载
 wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.4-darwin-arm64.tar.gz
 
 tar -xzf msm-0.7.4-darwin-arm64.tar.gz

@@ -35,14 +35,6 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
-::: tip 国内加速
-安装脚本已内置 MSM 专用加速链接，会自动加速 MSM 二进制文件下载。如果 GitHub 访问速度较慢，可使用通用加速镜像下载安装脚本：
-
-```bash
-curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-```
-:::
-
 ### 2. 验证安装
 
 ```bash
