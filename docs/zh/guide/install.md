@@ -51,9 +51,13 @@ wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | b
 ```bash
 # 使用 curl 下载并运行安装脚本
 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+# root 用户
+curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 
 # 或使用 wget
 wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+# root 用户
+wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 ```
 
 ::: warning 使用代理时的注意事项
@@ -75,15 +79,23 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 ```bash
 # 镜像获取官方脚本（curl）
 curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | bash
 
 # 镜像获取官方脚本（wget）
 wget -qO- https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+# root 用户
+wget -qO- https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | bash
 
 # 国内专用脚本（自动使用镜像版本/二进制）
 curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install_cn.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install_cn.sh | bash
 
 # 镜像直链版（简化入口）
 curl -fsSL https://msm.19930520.xyz/dl/install.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/dl/install.sh | bash
 ```
 
 > 提示：如果你已在终端导出 `http_proxy`/`https_proxy`，上述命令会自动使用这些代理。

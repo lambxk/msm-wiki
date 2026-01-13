@@ -110,28 +110,40 @@ MSM 支持所有能够配置**静态路由**和**自定义 DNS** 的路由系统
 ### 一键安装
 
 ```bash
-# 使用 curl
+# 使用 curl（sudo）
 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+# root 用户
+curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 
-# 或使用 wget
+# 或使用 wget（sudo）
 wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+# root 用户
+wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 ```
 
 ::: tip 国内加速（可选）
 如果直连 GitHub 较慢，可使用社区加速镜像：
 
 ```bash
-# curl
+# curl（sudo）
 curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | bash
 
-# wget
+# wget（sudo）
 wget -qO- https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+# root 用户
+wget -qO- https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | bash
 
 # 或直接使用国内专用脚本（自动走镜像下载二进制）
 curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install_cn.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install_cn.sh | bash
 
 # 镜像直链版（等价，用于部分环境更快）
 curl -fsSL https://msm.19930520.xyz/dl/install.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/dl/install.sh | bash
 ```
 :::
 
