@@ -8,11 +8,6 @@ on:
         required: false
         default: '0.0.0-test'
         type: string
-      servers:
-        description: '可选：多服务器列表，每行 host,user,password,target_path[,port]，优先于默认 secrets'
-        required: false
-        default: ''
-        type: string
 
 jobs:
   upload-test:
@@ -40,33 +35,33 @@ jobs:
 
       - name: 上传到自定义服务器
         shell: bash
+        env:
+          EXTRA_SERVERS: ${{ secrets.DEPLOY_SERVERS }}
+          DEFAULT_HOST: ${{ secrets.DEPLOY_SERVER_HOST }}
+          DEFAULT_USER: ${{ secrets.DEPLOY_SERVER_USER }}
+          DEFAULT_PASS: ${{ secrets.DEPLOY_SERVER_PASSWORD }}
+          DEFAULT_PATH: ${{ secrets.DEPLOY_TARGET_PATH }}
         run: |
           set -euo pipefail
 
           VERSION="${{ inputs.version || '0.0.0-test' }}"
           RSYNC_SSH="ssh -o StrictHostKeyChecking=no"
 
-          # 1) 汇总服务器列表：默认 secrets + 手工输入
-          DEFAULT_HOST="${{ secrets.DEPLOY_SERVER_HOST }}"
-          DEFAULT_USER="${{ secrets.DEPLOY_SERVER_USER }}"
-          DEFAULT_PASS="${{ secrets.DEPLOY_SERVER_PASSWORD }}"
-          DEFAULT_PATH="${{ secrets.DEPLOY_TARGET_PATH }}"
-          INPUT_SERVERS="${{ inputs.servers }}"
-
+          # 1) 汇总服务器列表：默认 secrets + DEPLOY_SERVERS(多行)
           servers=()
           if [ -n "${DEFAULT_HOST}" ] && [ -n "${DEFAULT_USER}" ] && [ -n "${DEFAULT_PASS}" ] && [ -n "${DEFAULT_PATH}" ]; then
             servers+=("${DEFAULT_HOST},${DEFAULT_USER},${DEFAULT_PASS},${DEFAULT_PATH}")
           fi
-          if [ -n "${INPUT_SERVERS}" ]; then
+          if [ -n "${EXTRA_SERVERS}" ]; then
             while IFS= read -r line; do
               line_trimmed="$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
               [ -z "$line_trimmed" ] && continue
               servers+=("$line_trimmed")
-            done <<< "${INPUT_SERVERS}"
+            done <<< "${EXTRA_SERVERS}"
           fi
 
           if [ ${#servers[@]} -eq 0 ]; then
-            echo "未提供服务器信息（可通过 DEPLOY_* secrets 或 servers 输入）"
+            echo "未提供服务器信息（可通过 DEPLOY_* 单点或 DEPLOY_SERVERS 多行 secrets 配置）"
             exit 0
           fi
 
