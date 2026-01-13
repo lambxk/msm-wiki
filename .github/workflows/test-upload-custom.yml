@@ -37,21 +37,14 @@ jobs:
         shell: bash
         env:
           EXTRA_SERVERS: ${{ secrets.DEPLOY_SERVERS }}
-          DEFAULT_HOST: ${{ secrets.DEPLOY_SERVER_HOST }}
-          DEFAULT_USER: ${{ secrets.DEPLOY_SERVER_USER }}
-          DEFAULT_PASS: ${{ secrets.DEPLOY_SERVER_PASSWORD }}
-          DEFAULT_PATH: ${{ secrets.DEPLOY_TARGET_PATH }}
         run: |
           set -euo pipefail
 
           VERSION="${{ inputs.version || '0.0.0-test' }}"
           RSYNC_SSH="ssh -o StrictHostKeyChecking=no"
 
-          # 1) 汇总服务器列表：默认 secrets + DEPLOY_SERVERS(多行)
+          # 仅使用 DEPLOY_SERVERS，多行 host,user,password,target_path[,port]
           servers=()
-          if [ -n "${DEFAULT_HOST}" ] && [ -n "${DEFAULT_USER}" ] && [ -n "${DEFAULT_PASS}" ] && [ -n "${DEFAULT_PATH}" ]; then
-            servers+=("${DEFAULT_HOST},${DEFAULT_USER},${DEFAULT_PASS},${DEFAULT_PATH}")
-          fi
           if [ -n "${EXTRA_SERVERS}" ]; then
             while IFS= read -r line; do
               line_trimmed="$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
@@ -61,17 +54,22 @@ jobs:
           fi
 
           if [ ${#servers[@]} -eq 0 ]; then
-            echo "未提供服务器信息（可通过 DEPLOY_* 单点或 DEPLOY_SERVERS 多行 secrets 配置）"
+            echo "未提供服务器信息（请在 secrets 中设置 DEPLOY_SERVERS，多行 host,user,password,target_path[,port]）"
             exit 0
           fi
 
           echo "即将上传到 ${#servers[@]} 个服务器:"
-          printf ' - %s\n' "${servers[@]}"
+          for entry in "${servers[@]}"; do
+            # 避免完整泄露，host 中间三位替换为 ***
+            IFS=',' read -r host user pass target port <<< "$entry"
+            safe_host="$(echo "$host" | sed 's/\\([0-9A-Za-z]\\{1,3\\}\\)[0-9A-Za-z]\\{3\\}/\\1***/')"
+            echo " - ${safe_host}"
+          done
 
           for entry in "${servers[@]}"; do
             IFS=',' read -r host user pass target port <<< "$entry"
             if [ -z "${host}" ] || [ -z "${user}" ] || [ -z "${pass}" ] || [ -z "${target}" ]; then
-              echo "跳过无效配置: $entry"
+              echo "跳过无效配置"
               continue
             fi
 
@@ -80,8 +78,6 @@ jobs:
             if [ -n "${port}" ]; then
               PORT_OPT="-p ${port}"
             fi
-
-            echo ">>> 上传到 ${user}@${host}:${TARGET}"
 
             sshpass -p "${pass}" ssh -o StrictHostKeyChecking=no ${PORT_OPT} "${user}@${host}" "mkdir -p \"${TARGET}\" \"${TARGET}/${VERSION}\""
 
