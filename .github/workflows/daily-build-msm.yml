@@ -508,16 +508,8 @@ jobs:
 
             **${{ needs.prepare.outputs.commit_message }}**
 
-            - 👤 作者: ${{ needs.prepare.outputs.commit_author }}
             - 📅 时间: ${{ needs.prepare.outputs.commit_date }}
             - 🔗 链接: https://github.com/msm9527/msm/commit/${{ needs.prepare.outputs.commit_sha }}
-
-            </details>
-
-            <details>
-            <summary>📝 近期更新记录（最近 10 次提交）</summary>
-
-            ${{ needs.prepare.outputs.changelog }}
 
             </details>
 
@@ -572,6 +564,8 @@ jobs:
             3. 首次打开时，如果遇到"无法验证开发者"提示：
                - 打开"系统设置" → "隐私与安全性"
                - 点击"仍要打开"按钮
+            4. 由于应用未经过 Apple 公证，提示文件损坏执行下边命令
+               - /usr/bin/xattr -cr "/Applications/msm-desktop.app" && /usr/bin/codesign -fs - "/Applications/msm-desktop.app"
 
             </details>
 
