@@ -31,7 +31,7 @@ msm -d
 由于应用未经过 Apple 公证，macOS 可能提示“文件已损坏/无法打开”。请在 `msm` 所在目录执行：
 
 ```bash
-/usr/bin/xattr -cr ./msm && /usr/bin/codesign -fs - ./msm
+/usr/bin/xattr -cr msm && /usr/bin/codesign -fs - msm
 ```
 :::
 
