@@ -9,6 +9,16 @@ macOS 支持 **CLI 版** 与 **桌面版**（若发布提供）。
 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
+### 国内网络加速（可选）
+
+```bash
+# 镜像反代
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+
+# 镜像直链
+curl -fsSL https://msm.19930520.xyz/dl/install.sh | sudo bash
+```
+
 安装后可使用：
 
 ```bash

@@ -19,6 +19,20 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 ```
 
+## 国内网络加速（可选）
+
+```bash
+# 镜像反代（sudo）
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | bash
+
+# 镜像直链（sudo）
+curl -fsSL https://msm.19930520.xyz/dl/install.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/dl/install.sh | bash
+```
+
 脚本会自动选择 **musl** 版本。Alpine 使用 OpenRC，可用内置命令托管启动。
 
 ## 启动方式（OpenRC）

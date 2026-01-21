@@ -34,7 +34,14 @@ MSM_VERSION=0.7.7 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/
 ### 国内网络加速（可选）
 
 ```bash
+# 镜像反代（sudo）
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | bash
+
+# 镜像直链（sudo）
 curl -fsSL https://msm.19930520.xyz/dl/install.sh | sudo bash
+# root 用户
 curl -fsSL https://msm.19930520.xyz/dl/install.sh | bash
 ```
 
