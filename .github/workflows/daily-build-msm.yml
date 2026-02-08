@@ -2,12 +2,14 @@ name: 每日构建 MSM
 
 on:
   schedule:
-    # 每天凌晨 4 点（UTC 时间 20:00，即北京时间凌晨 4 点）
+    # stable：每天凌晨 4 点（UTC 时间 20:00）
     - cron: '0 20 * * *'
+    # beta（dev 分支）：每天凌晨 4:30（UTC 时间 20:30）
+    - cron: '30 20 * * *'
   workflow_dispatch:
     inputs:
       branch:
-        description: '要构建的分支'
+        description: '要构建的分支（main=稳定版，dev=Beta 版）'
         required: false
         default: 'main'
         type: string
@@ -32,6 +34,18 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.meta.outputs.version }}
+      base_version: ${{ steps.meta.outputs.base_version }}
+      channel: ${{ steps.meta.outputs.channel }}
+      channel_name: ${{ steps.meta.outputs.channel_name }}
+      is_stable: ${{ steps.meta.outputs.is_stable }}
+      is_beta: ${{ steps.meta.outputs.is_beta }}
+      release_notes_path: ${{ steps.meta.outputs.release_notes_path }}
+      latest_marker: ${{ steps.meta.outputs.latest_marker }}
+      history_marker: ${{ steps.meta.outputs.history_marker }}
+      docker_channel_tag: ${{ steps.meta.outputs.docker_channel_tag }}
+      release_docs_url: ${{ steps.meta.outputs.release_docs_url }}
+      install_script_name: ${{ steps.meta.outputs.install_script_name }}
+      install_script_url: ${{ steps.meta.outputs.install_script_url }}
       commit_sha: ${{ steps.meta.outputs.commit_sha }}
       commit_sha_short: ${{ steps.meta.outputs.commit_sha_short }}
       branch: ${{ steps.meta.outputs.branch }}
@@ -50,7 +64,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: msm9527/msm
-          ref: ${{ inputs.branch || 'main' }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && (inputs.branch || 'main') || (github.event.schedule == '30 20 * * *' && 'dev' || 'main') }}
           token: ${{ secrets.MSM_REPO_TOKEN }}
           fetch-depth: 0
 
@@ -77,10 +91,53 @@ jobs:
             exit 1
           fi
 
+          EVENT_NAME="${{ github.event_name }}"
+          EVENT_SCHEDULE="${{ github.event.schedule || '' }}"
+          INPUT_BRANCH="${{ inputs.branch || '' }}"
+
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+            BRANCH="${INPUT_BRANCH:-main}"
+          elif [ "${EVENT_NAME}" = "schedule" ] && [ "${EVENT_SCHEDULE}" = "30 20 * * *" ]; then
+            BRANCH="dev"
+          else
+            BRANCH="main"
+          fi
+
+          CHANNEL="stable"
+          CHANNEL_NAME="稳定版"
+          IS_STABLE="true"
+          IS_BETA="false"
+          DOCKER_CHANNEL_TAG="latest"
+          RELEASE_NOTES_PATH="docs/zh/guide/releases.md"
+          LATEST_MARKER="## 🚀 最新稳定版本"
+          HISTORY_MARKER="## 📚 历史版本"
+          RELEASE_DOCS_URL="https://msm9527.github.io/msm-wiki/zh/guide/releases.html"
+          INSTALL_SCRIPT_NAME="install.sh"
+          INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh"
+
+          if [ "${BRANCH}" = "dev" ]; then
+            CHANNEL="beta"
+            CHANNEL_NAME="Beta 版"
+            IS_STABLE="false"
+            IS_BETA="true"
+            DOCKER_CHANNEL_TAG="beta-latest"
+            RELEASE_NOTES_PATH="docs/zh/guide/releases-beta.md"
+            LATEST_MARKER="## 🧪 最新 Beta 版本"
+            HISTORY_MARKER="## 📚 历史 Beta 版本"
+            RELEASE_DOCS_URL="https://msm9527.github.io/msm-wiki/zh/guide/releases-beta.html"
+            INSTALL_SCRIPT_NAME="install_beta.sh"
+            INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/msm9527/msm-wiki/main/install_beta.sh"
+          fi
+
+          BASE_VERSION="${VERSION}"
+          RELEASE_VERSION="${VERSION}"
+          if [ "${CHANNEL}" = "beta" ]; then
+            RELEASE_VERSION="beta-${VERSION}"
+          fi
+
           FORCE_UPDATE="${{ inputs.force_update || 'false' }}"
           COMMIT_SHA="$(git rev-parse HEAD)"
           COMMIT_SHA_SHORT="$(git rev-parse --short=7 HEAD)"
-          BRANCH="${{ inputs.branch || 'main' }}"
 
           # 获取最新提交信息
           COMMIT_MESSAGE="$(git log -1 --pretty=format:'%s')"
@@ -116,7 +173,19 @@ jobs:
             COMMIT_COUNT="20"
           fi
 
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "version=${RELEASE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "base_version=${BASE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "channel=${CHANNEL}" >> "$GITHUB_OUTPUT"
+          echo "channel_name=${CHANNEL_NAME}" >> "$GITHUB_OUTPUT"
+          echo "is_stable=${IS_STABLE}" >> "$GITHUB_OUTPUT"
+          echo "is_beta=${IS_BETA}" >> "$GITHUB_OUTPUT"
+          echo "release_notes_path=${RELEASE_NOTES_PATH}" >> "$GITHUB_OUTPUT"
+          echo "latest_marker=${LATEST_MARKER}" >> "$GITHUB_OUTPUT"
+          echo "history_marker=${HISTORY_MARKER}" >> "$GITHUB_OUTPUT"
+          echo "docker_channel_tag=${DOCKER_CHANNEL_TAG}" >> "$GITHUB_OUTPUT"
+          echo "release_docs_url=${RELEASE_DOCS_URL}" >> "$GITHUB_OUTPUT"
+          echo "install_script_name=${INSTALL_SCRIPT_NAME}" >> "$GITHUB_OUTPUT"
+          echo "install_script_url=${INSTALL_SCRIPT_URL}" >> "$GITHUB_OUTPUT"
           echo "commit_sha=${COMMIT_SHA}" >> "$GITHUB_OUTPUT"
           echo "commit_sha_short=${COMMIT_SHA_SHORT}" >> "$GITHUB_OUTPUT"
           echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
@@ -134,11 +203,11 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-          RELEASE_URL="https://github.com/msm9527/msm-wiki/releases/tag/${VERSION}"
-          if [ "${FORCE_UPDATE}" != "true" ]; then
+          RELEASE_URL="https://github.com/msm9527/msm-wiki/releases/tag/${RELEASE_VERSION}"
+          if [ "${FORCE_UPDATE}" != "true" ] && [ "${CHANNEL}" = "stable" ]; then
             STATUS="$(curl -I -s -o /dev/null -w '%{http_code}' "${RELEASE_URL}")"
             if [ "${STATUS}" -ge 200 ] && [ "${STATUS}" -lt 400 ]; then
-              echo "检测到版本 ${VERSION} 已存在于 Release 页面 (${RELEASE_URL})，跳过后续任务"
+              echo "检测到版本 ${RELEASE_VERSION} 已存在于 Release 页面 (${RELEASE_URL})，跳过后续任务"
               echo "skip=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
@@ -146,7 +215,8 @@ jobs:
 
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
-          echo "构建版本: ${VERSION}"
+          echo "构建通道: ${CHANNEL} (${CHANNEL_NAME})"
+          echo "构建版本: ${RELEASE_VERSION} (源版本: ${BASE_VERSION})"
           echo "构建分支: ${BRANCH}"
           echo "提交 SHA: ${COMMIT_SHA}"
           echo "最新提交: ${COMMIT_MESSAGE}"
@@ -344,7 +414,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: msm9527/msm
-          ref: ${{ inputs.branch || 'main' }}
+          ref: ${{ needs.prepare.outputs.branch }}
           token: ${{ secrets.MSM_REPO_TOKEN }}
 
       - name: Setup Go
@@ -451,7 +521,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    name: 发布每日构建
+    name: 发布构建产物（${{ needs.prepare.outputs.channel_name }}）
     needs: [prepare, build]
     if: needs.prepare.outputs.skip != 'true'
     runs-on: ubuntu-24.04
@@ -472,6 +542,7 @@ jobs:
           set -euo pipefail
           VERSION="${{ needs.prepare.outputs.version }}"
           SHA="${GITHUB_SHA}"
+          CHANNEL_NAME="${{ needs.prepare.outputs.channel_name }}"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -481,14 +552,14 @@ jobs:
           git push origin ":refs/tags/${VERSION}" || true
 
           # 创建新的版本 tag
-          git tag -a "${VERSION}" -m "每日构建 ${VERSION}" "${SHA}"
+          git tag -a "${VERSION}" -m "${CHANNEL_NAME} 每日构建 ${VERSION}" "${SHA}"
           git push origin "refs/tags/${VERSION}"
 
       - name: 创建/更新 GitHub Release
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ needs.prepare.outputs.version }}
-          name: 🚀 MSM ${{ needs.prepare.outputs.version }}
+          name: 🚀 MSM ${{ needs.prepare.outputs.version }}（${{ needs.prepare.outputs.channel_name }}）
           body: |
             <div align="center">
 
@@ -498,7 +569,7 @@ jobs:
             ![Version](https://img.shields.io/badge/version-${{ needs.prepare.outputs.version }}-blue)
             ![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos-lightgrey)
 
-            **每日自动构建版本 · 包含最新代码更新**
+            **${{ needs.prepare.outputs.channel_name }}每日自动构建 · 包含最新代码更新**
 
             </div>
 
@@ -515,6 +586,7 @@ jobs:
             | 项目 | 内容 |
             |------|------|
             | **版本号** | `${{ needs.prepare.outputs.version }}` |
+            | **发布通道** | `${{ needs.prepare.outputs.channel }}` |
             | **源仓库** | [msm9527/msm](https://github.com/msm9527/msm) |
             | **构建分支** | `${{ needs.prepare.outputs.branch }}` 🌿 |
             | **源提交** | [`${{ needs.prepare.outputs.commit_sha_short }}`](https://github.com/msm9527/msm/commit/${{ needs.prepare.outputs.commit_sha }}) |
@@ -593,7 +665,7 @@ jobs:
             ### 一键安装脚本（推荐）
 
             ```bash
-            curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+            curl -fsSL ${{ needs.prepare.outputs.install_script_url }} | sudo bash
             ```
 
             ### 手动安装（以 Linux amd64 为例）
@@ -633,7 +705,7 @@ jobs:
 
             - 📖 [完整文档](https://msm9527.github.io/msm-wiki/)
             - 🚀 [快速开始](https://msm9527.github.io/msm-wiki/zh/guide/install.html)
-            - 📝 [版本发布](https://msm9527.github.io/msm-wiki/zh/guide/releases.html)
+            - 📝 [版本发布](${{ needs.prepare.outputs.release_docs_url }})
             - 💬 [问题反馈](https://github.com/msm9527/msm/issues)
 
             ---
@@ -647,7 +719,8 @@ jobs:
             [![Docker](https://img.shields.io/badge/docker-msmbox%2Fmsm-blue?logo=docker)](https://hub.docker.com/r/msmbox/msm)
 
             </div>
-          makeLatest: true
+          makeLatest: ${{ needs.prepare.outputs.is_stable }}
+          prerelease: ${{ needs.prepare.outputs.is_beta }}
           allowUpdates: true
           replacesArtifacts: true
           artifacts: |
@@ -660,18 +733,22 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const path = require('path');
 
             const version = '${{ needs.prepare.outputs.version }}';
+            const baseVersion = '${{ needs.prepare.outputs.base_version }}';
+            const channel = '${{ needs.prepare.outputs.channel }}';
+            const channelName = '${{ needs.prepare.outputs.channel_name }}';
             const aiSummary = ${{ toJSON(needs.prepare.outputs.ai_summary) }};
             const commitSha = '${{ needs.prepare.outputs.commit_sha_short }}';
             const commitShaFull = '${{ needs.prepare.outputs.commit_sha }}';
             const commitMessage = ${{ toJSON(needs.prepare.outputs.commit_message) }};
             const commitAuthor = ${{ toJSON(needs.prepare.outputs.commit_author) }};
             const commitDate = '${{ needs.prepare.outputs.commit_date }}';
+            const latestVersionMarker = '${{ needs.prepare.outputs.latest_marker }}';
+            const historyVersionMarker = '${{ needs.prepare.outputs.history_marker }}';
+            const releasesPath = '${{ needs.prepare.outputs.release_notes_path }}';
 
             // 读取现有的版本发布页面
-            const releasesPath = 'docs/zh/guide/releases.md';
             let content = fs.readFileSync(releasesPath, 'utf-8');
 
             // 使用最后一个 commit 的时间作为发布日期（精确到分钟）
@@ -689,8 +766,11 @@ jobs:
             }).replace(/\//g, '-');
 
             // 构建新版本的内容（与新版 releases 页面结构对齐）
+            const versionLabel = channel === 'beta'
+              ? `当前 Beta 版本：\`${version}\``
+              : `当前稳定版本：\`v${baseVersion}\``;
             const newVersionContent = `
-            > 当前稳定版本：\`v${version}\`  
+            > ${versionLabel}  
             > 发布时间：${dateStr}  
             > - 发布页：<https://github.com/msm9527/msm-wiki/releases/tag/${version}>  
             > - 下载方式：同一发布页内提供各平台二进制与安装包
@@ -698,6 +778,7 @@ jobs:
             ${aiSummary}
             
             ::: details 📋 构建信息
+            - **发布通道**: ${channel}（${channelName}）
             - **源提交**: [\`${commitSha}\`](https://github.com/msm9527/msm/commit/${commitShaFull})
             - **提交信息**: ${commitMessage}
             - **提交作者**: ${commitAuthor}
@@ -706,10 +787,6 @@ jobs:
             
             ---
             `;
-
-            // 查找"## 🚀 最新稳定版本"标记
-            const latestVersionMarker = '## 🚀 最新稳定版本';
-            const historyVersionMarker = '## 📚 历史版本';
 
             if (content.includes(latestVersionMarker) && content.includes(historyVersionMarker)) {
               // 找到最新版本和历史版本的位置
@@ -739,12 +816,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add docs/zh/guide/releases.md
+          git add "${{ needs.prepare.outputs.release_notes_path }}"
 
           if git diff --staged --quiet; then
             echo "没有需要提交的更改"
           else
-            git commit -m "自动更新版本发布页面: ${{ needs.prepare.outputs.version }}
+            git commit -m "自动更新${{ needs.prepare.outputs.channel_name }}发布页面: ${{ needs.prepare.outputs.version }}
 
             - 添加版本 ${{ needs.prepare.outputs.version }} 的发布信息
             - AI 生成的更新总结
@@ -815,7 +892,7 @@ jobs:
           file: ./Dockerfile.binary
           platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6,linux/386
           push: true
-          tags: msmbox/msm:${{ needs.prepare.outputs.version }},msmbox/msm:latest
+          tags: msmbox/msm:${{ needs.prepare.outputs.version }},msmbox/msm:${{ needs.prepare.outputs.docker_channel_tag }}
           labels: |
             org.opencontainers.image.title=MSM
             org.opencontainers.image.description=Mosdns Singbox Mihomo Manager
@@ -832,11 +909,12 @@ jobs:
         shell: bash
         run: |
           VERSION="${{ needs.prepare.outputs.version }}"
+          CHANNEL_TAG="${{ needs.prepare.outputs.docker_channel_tag }}"
           echo "✅ Docker 镜像已推送到 Docker Hub"
           echo ""
           echo "镜像标签:"
           echo "  - msmbox/msm:${VERSION}"
-          echo "  - msmbox/msm:latest"
+          echo "  - msmbox/msm:${CHANNEL_TAG}"
           echo ""
           echo "支持的架构:"
           echo "  - linux/amd64"
@@ -885,6 +963,7 @@ jobs:
           set -euo pipefail
 
           VERSION="${{ needs.prepare.outputs.version }}"
+          CHANNEL="${{ needs.prepare.outputs.channel }}"
           RSYNC_SSH="ssh -o StrictHostKeyChecking=no"
 
           # 仅使用 DEPLOY_SERVERS 多行配置：host,user,password,target_path[,port]
@@ -917,6 +996,9 @@ jobs:
             fi
 
             TARGET="${target%/}"
+            if [ "${CHANNEL}" = "beta" ]; then
+              TARGET="${TARGET}/beta"
+            fi
             PORT_OPT=""
             if [ -n "${port}" ]; then
               PORT_OPT="-p ${port}"
@@ -930,8 +1012,8 @@ jobs:
 
           echo "✅ 已将 .version 和打包产物上传至所有服务器"
           echo "使用方式:"
-          echo "  docker pull msmbox/msm:latest"
-          echo "  docker run -d -p 7777:7777 msmbox/msm:latest"
+          echo "  docker pull msmbox/msm:${{ needs.prepare.outputs.docker_channel_tag }}"
+          echo "  docker run -d -p 7777:7777 msmbox/msm:${{ needs.prepare.outputs.docker_channel_tag }}"
 
   desktop:
     name: 构建 macOS 桌面应用并追加到 Release
@@ -953,7 +1035,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: msm9527/msm
-          ref: ${{ inputs.branch || 'main' }}
+          ref: ${{ needs.prepare.outputs.branch }}
           token: ${{ secrets.MSM_REPO_TOKEN }}
 
       - name: Setup Node.js

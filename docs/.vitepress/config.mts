@@ -25,6 +25,7 @@ export default defineConfig({
       { text: '路由器集成', link: '/zh/guide/router-integration' },
       { text: '使用指南', link: '/zh/guide/basic-config' },
       { text: '版本发布', link: '/zh/guide/releases' },
+      { text: 'Beta 版发布', link: '/zh/guide/releases-beta' },
       { text: '常见问题', link: '/zh/faq/' }
     ],
 
@@ -76,6 +77,7 @@ export default defineConfig({
           text: '维护管理',
           items: [
             { text: '版本发布', link: '/zh/guide/releases' },
+            { text: 'Beta 版发布', link: '/zh/guide/releases-beta' },
             { text: '更新升级', link: '/zh/guide/update' },
             { text: '备份恢复', link: '/zh/guide/backup-restore' }
           ]
