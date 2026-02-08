@@ -378,20 +378,21 @@ jobs:
             runs_on: ubuntu-24.04
             goos: linux
             goarch: arm64
-          - target: linux-armv7
-            runs_on: ubuntu-24.04
-            goos: linux
-            goarch: arm
-            goarm: "7"
-          - target: linux-armv6
-            runs_on: ubuntu-24.04
-            goos: linux
-            goarch: arm
-            goarm: "6"
-          - target: linux-386
-            runs_on: ubuntu-24.04
-            goos: linux
-            goarch: "386"
+          # 暂停发布以下架构（后续可恢复）
+          # - target: linux-armv7
+          #   runs_on: ubuntu-24.04
+          #   goos: linux
+          #   goarch: arm
+          #   goarm: "7"
+          # - target: linux-armv6
+          #   runs_on: ubuntu-24.04
+          #   goos: linux
+          #   goarch: arm
+          #   goarm: "6"
+          # - target: linux-386
+          #   runs_on: ubuntu-24.04
+          #   goos: linux
+          #   goarch: "386"
           - target: darwin-amd64
             runs_on: macos-15-intel
             goos: darwin
@@ -633,9 +634,8 @@ jobs:
             | **amd64-musl-v3** | [`msm-${{ needs.prepare.outputs.version }}-linux-amd64-musl-v3.tar.gz`](https://github.com/msm9527/msm-wiki/releases/download/${{ needs.prepare.outputs.version }}/msm-${{ needs.prepare.outputs.version }}-linux-amd64-musl-v3.tar.gz) | Alpine 优化版 |
             | **arm64** | [`msm-${{ needs.prepare.outputs.version }}-linux-arm64.tar.gz`](https://github.com/msm9527/msm-wiki/releases/download/${{ needs.prepare.outputs.version }}/msm-${{ needs.prepare.outputs.version }}-linux-arm64.tar.gz) | ARM 64位 |
             | **arm64-musl** | [`msm-${{ needs.prepare.outputs.version }}-linux-arm64-musl.tar.gz`](https://github.com/msm9527/msm-wiki/releases/download/${{ needs.prepare.outputs.version }}/msm-${{ needs.prepare.outputs.version }}-linux-arm64-musl.tar.gz) | ARM Alpine |
-            | **armv7** | [`msm-${{ needs.prepare.outputs.version }}-linux-armv7.tar.gz`](https://github.com/msm9527/msm-wiki/releases/download/${{ needs.prepare.outputs.version }}/msm-${{ needs.prepare.outputs.version }}-linux-armv7.tar.gz) | ARM v7 |
-            | **armv6** | [`msm-${{ needs.prepare.outputs.version }}-linux-armv6.tar.gz`](https://github.com/msm9527/msm-wiki/releases/download/${{ needs.prepare.outputs.version }}/msm-${{ needs.prepare.outputs.version }}-linux-armv6.tar.gz) | ARM v6 |
-            | **386** | [`msm-${{ needs.prepare.outputs.version }}-linux-386.tar.gz`](https://github.com/msm9527/msm-wiki/releases/download/${{ needs.prepare.outputs.version }}/msm-${{ needs.prepare.outputs.version }}-linux-386.tar.gz) | 32位 x86 |
+
+            > **📌 说明：** `armv7`、`armv6`、`386` 架构当前已暂时暂停发布。
 
             > **💡 提示：** amd64-v3 版本针对较新的 CPU 进行了优化（需要支持 AVX、AVX2 等指令集），性能更好但兼容性较低。如果不确定，请使用标准的 amd64 版本。
 
@@ -868,7 +868,7 @@ jobs:
           VERSION="${{ needs.prepare.outputs.version }}"
 
           # 创建目录结构 binaries/{platform}/msm
-          mkdir -p binaries/linux/amd64 binaries/linux/arm64 binaries/linux/arm/v7 binaries/linux/arm/v6 binaries/linux/386
+          mkdir -p binaries/linux/amd64 binaries/linux/arm64
 
           # 解压并复制各架构的二进制文件
           echo "准备 linux/amd64 二进制..."
@@ -876,15 +876,6 @@ jobs:
 
           echo "准备 linux/arm64 二进制..."
           tar -xzf "dist/msm-${VERSION}-linux-arm64/msm-${VERSION}-linux-arm64.tar.gz" -C binaries/linux/arm64
-
-          echo "准备 linux/arm/v7 二进制..."
-          tar -xzf "dist/msm-${VERSION}-linux-armv7/msm-${VERSION}-linux-armv7.tar.gz" -C binaries/linux/arm/v7
-
-          echo "准备 linux/arm/v6 二进制..."
-          tar -xzf "dist/msm-${VERSION}-linux-armv6/msm-${VERSION}-linux-armv6.tar.gz" -C binaries/linux/arm/v6
-
-          echo "准备 linux/386 二进制..."
-          tar -xzf "dist/msm-${VERSION}-linux-386/msm-${VERSION}-linux-386.tar.gz" -C binaries/linux/386
 
           # 验证文件结构
           echo "验证二进制文件:"
@@ -904,7 +895,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile.binary
-          platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6,linux/386
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: msmbox/msm:${{ needs.prepare.outputs.version }},msmbox/msm:${{ needs.prepare.outputs.docker_channel_tag }}
           labels: |
@@ -933,9 +924,6 @@ jobs:
           echo "支持的架构:"
           echo "  - linux/amd64"
           echo "  - linux/arm64"
-          echo "  - linux/arm/v7"
-          echo "  - linux/arm/v6"
-          echo "  - linux/386"
           echo ""
           echo "注意: Docker 镜像使用标准 amd64 版本，amd64-v3 优化版仅作为独立二进制文件提供"
           echo ""
