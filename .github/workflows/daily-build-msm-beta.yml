@@ -1,9 +1,9 @@
-name: 每日构建 MSM（稳定版）
+name: 每日构建 MSM（Beta）
 
 on:
   schedule:
-    # 每天凌晨 4 点（UTC 时间 20:00）
-    - cron: '0 20 * * *'
+    # 每天凌晨 4:30（UTC 时间 20:30）
+    - cron: '30 20 * * *'
   workflow_dispatch:
     inputs:
       force_update:
@@ -18,7 +18,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: daily-build-stable-${{ github.ref }}
+  group: daily-build-beta-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: msm9527/msm
-          ref: main
+          ref: dev
           token: ${{ secrets.MSM_REPO_TOKEN }}
           fetch-depth: 0
 
@@ -84,21 +84,21 @@ jobs:
             exit 1
           fi
 
-          BRANCH="main"
-          CHANNEL="stable"
-          CHANNEL_NAME="稳定版"
-          IS_STABLE="true"
-          IS_BETA="false"
-          DOCKER_CHANNEL_TAG="latest"
-          RELEASE_NOTES_PATH="docs/zh/guide/releases.md"
-          LATEST_MARKER="## 🚀 最新稳定版本"
-          HISTORY_MARKER="## 📚 历史版本"
-          RELEASE_DOCS_URL="https://msm9527.github.io/msm-wiki/zh/guide/releases.html"
-          INSTALL_SCRIPT_NAME="install.sh"
-          INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh"
+          BRANCH="dev"
+          CHANNEL="beta"
+          CHANNEL_NAME="Beta 版"
+          IS_STABLE="false"
+          IS_BETA="true"
+          DOCKER_CHANNEL_TAG="beta-latest"
+          RELEASE_NOTES_PATH="docs/zh/guide/releases-beta.md"
+          LATEST_MARKER="## 🧪 最新 Beta 版本"
+          HISTORY_MARKER="## 📚 历史 Beta 版本"
+          RELEASE_DOCS_URL="https://msm9527.github.io/msm-wiki/zh/guide/releases-beta.html"
+          INSTALL_SCRIPT_NAME="install_beta.sh"
+          INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/msm9527/msm-wiki/main/install_beta.sh"
 
           BASE_VERSION="${VERSION}"
-          RELEASE_VERSION="${VERSION}"
+          RELEASE_VERSION="beta-${VERSION}"
 
           FORCE_UPDATE="${{ inputs.force_update || 'false' }}"
           COMMIT_SHA="$(git rev-parse HEAD)"
