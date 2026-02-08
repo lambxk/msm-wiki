@@ -12,11 +12,7 @@
 > - 发布页：<https://github.com/msm9527/msm-wiki/releases/tag/beta-0.9.7>  
 > - 下载方式：同一发布页内提供各平台二进制与安装包
 
-### 🔧 变更（Changed）
-- machine_code统一为UUID格式兼容旧缓存
-
-### 📝 备注（Notes）
-- 更新后需清理旧缓存以确保兼容性
+本次发布窗口内无新增提交
 
 ::: details 📋 构建信息
 - **发布通道**: beta（Beta 版）
