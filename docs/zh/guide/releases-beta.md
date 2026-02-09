@@ -8,24 +8,27 @@
 
 
 > 当前 Beta 版本：`beta-0.9.8`  
-> 发布时间：2026-02-09 12:22  
+> 发布时间：2026-02-09 15:51  
 > - 发布页：<https://github.com/msm9527/msm-wiki/releases/tag/beta-0.9.8>  
 > - 下载方式：同一发布页内提供各平台二进制与安装包
 
 ### 🔧 变更（Changed）
-- 修改默认DNS劫持配置
-- 默认配置更新
-- 修改默认SOCKS5端口为7891
+- 根据用户权限调用 Mihomo 配置接口
+- 移除 Mihomo 编辑页面的 Pro 弹窗提示
+- 移除 Mihomo 配置更新接口的 Pro 授权限制
+- 调整页面宽度减少空白
+- 重新设计许可证页面布局
+- 优化许可证管理页面视觉效果
 
 ### 🐛 修复（Fixed）
-- 修复Mihomo TUN默认DNS劫持配置问题
+- 修复 EditPage 构建失败问题
 
 ::: details 📋 构建信息
 - **发布通道**: beta（Beta 版）
-- **源提交**: [`bd25abc`](https://github.com/msm9527/msm/commit/bd25abc47e33cf88abd555ab5240b0b74bdef931)
-- **提交信息**: 修复Mihomo TUN默认dns-hijack配置并补充回归测试
+- **源提交**: [`cafc119`](https://github.com/msm9527/msm/commit/cafc1199de97165c6b036015e02b9e97086d91fc)
+- **提交信息**: 修复EditPage未使用图标导入导致构建失败
 - **提交作者**: msm
-- **提交时间**: 2026-02-09 12:22:28 +0800
+- **提交时间**: 2026-02-09 15:51:58 +0800
 :::
 
 ---
