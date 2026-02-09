@@ -12,16 +12,7 @@
 > - 发布页：<https://github.com/msm9527/msm-wiki/releases/tag/beta-0.9.8>  
 > - 下载方式：同一发布页内提供各平台二进制与安装包
 
-### 🔧 变更（Changed）
-- 根据用户权限调用 Mihomo 配置接口
-- 移除 Mihomo 编辑页面的 Pro 弹窗提示
-- 移除 Mihomo 配置更新接口的 Pro 授权限制
-- 调整页面宽度减少空白
-- 重新设计许可证页面布局
-- 优化许可证管理页面视觉效果
-
-### 🐛 修复（Fixed）
-- 修复 EditPage 构建失败问题
+本次发布窗口内无新增提交
 
 ::: details 📋 构建信息
 - **发布通道**: beta（Beta 版）
