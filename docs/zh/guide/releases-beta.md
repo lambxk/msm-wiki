@@ -7,20 +7,21 @@
 ## 🧪 最新 Beta 版本
 
 
-> 当前 Beta 版本：`beta-0.9.9`  
-> 发布时间：2026-02-10 17:09  
-> - 发布页：<https://github.com/msm9527/msm-wiki/releases/tag/beta-0.9.9>  
+> 当前 Beta 版本：`beta-0.9.10`  
+> 发布时间：2026-02-10 17:59  
+> - 发布页：<https://github.com/msm9527/msm-wiki/releases/tag/beta-0.9.10>  
 > - 下载方式：同一发布页内提供各平台二进制与安装包
 
-### 🔧 变更（Changed）
-- 前端增加 Pro 权限检查，避免无效请求
+### 🐛 修复（Fixed）
+- 修复 Mihomo 订阅节点存活数量显示错误
+- 修复 Mihomo 代理节点分享链接转换与空配置保存问题
 
 ::: details 📋 构建信息
 - **发布通道**: beta（Beta 版）
-- **源提交**: [`5ef6a86`](https://github.com/msm9527/msm/commit/5ef6a863e576376611012e6a1c3c64be1deb03b8)
-- **提交信息**: 前端在调用接口前检查 Pro 权限，避免无效请求
-- **提交作者**: msm
-- **提交时间**: 2026-02-10 17:09:29 +0800
+- **源提交**: [`897332b`](https://github.com/msm9527/msm/commit/897332bfe1462121bfdf2370fee288f62091ef4e)
+- **提交信息**: chore: sync version to 0.9.10
+- **提交作者**: github-actions[bot]
+- **提交时间**: 2026-02-10 09:59:17 +0000
 :::
 
 ---
