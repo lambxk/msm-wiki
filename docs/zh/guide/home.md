@@ -14,8 +14,6 @@ listeners:
 rules:
   #内网ip直连，改成你的内网ip网段
   - IP-CIDR,192.168.1.0/24,DIRECT
-  #回家端口直连
-  - IN-NAME,SS-IN,DIRECT
 ```
 
 ## 客户端配置
