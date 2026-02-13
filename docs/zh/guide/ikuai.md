@@ -1,4 +1,4 @@
-<img width="109" height="29" alt="image" src="https://github.com/user-attachments/assets/bfd6c237-e39d-40cb-8ce0-1aa45d0e2377" /># 爱快（iKuai）配置指南
+# 爱快（iKuai）配置指南
 
 ## 示例环境
 
